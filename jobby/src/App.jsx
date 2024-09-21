@@ -28,6 +28,7 @@ function App() {
           placeholder="Save application via entering in URL"
           size="md"
           width="350px"
+          textAlign="center"
         />
         <Button colorScheme='teal' size='md'>
           Save job application
@@ -41,6 +42,7 @@ function App() {
             <Input
               placeholder="Search job applications via company name"
               size="md"
+              textAlign="center"
             />
             <Button colorScheme='teal' size='md'>
               Search
