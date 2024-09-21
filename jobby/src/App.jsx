@@ -5,7 +5,7 @@ function App() {
   return (
     <Flex
         width={"100vw"}
-        Height={"100vh"}
+        height={"100vh"}
         alignContent={"flex-start"}
         justifyContent={"flex-start"}
         p={4}
