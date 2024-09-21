@@ -1,6 +1,6 @@
 # Jobby
 
-**Front end** - Next.js, Vite
+**Front end** - Vite, React
 
 **Backend** - Python (Django framework)
 - Python v3.12.6 Windows [download](https://www.python.org/downloads/release/python-3126/)
