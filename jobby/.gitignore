@@ -3,4 +3,5 @@
 .venv
 env
 venv
-jobbyenv
+
+server/server/.env
