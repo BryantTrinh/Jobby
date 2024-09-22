@@ -1,4 +1,4 @@
-import { Heading, Text, Box, Flex, Stack, Input, Accordion, AccordionItem, AccordionButton, AccordionPanel, AccordionIcon, Button } from "@chakra-ui/react";
+import { Heading, Text, Box, Flex, Stack, Input, Accordion, AccordionItem, AccordionButton, AccordionPanel, AccordionIcon, Button, Icon } from "@chakra-ui/react";
 import './App.css';
 
 function App() {
@@ -21,6 +21,7 @@ function App() {
       Jobby 
       </Text>
     </Stack>
+
 
       {/* Save application field and save button */}
       <Stack spacing={4} align="center" mb={20} width="100%">
