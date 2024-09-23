@@ -25,7 +25,7 @@ function App() {
 
     <Stack fontFamily="Verdana" mb={10} align="center" mt={-100}>
       <h2>
-      <Text fontSize='3xl' color='#008080'>Career Documentation & Assistance</Text>
+      <Text fontSize='3xl' color='#008080'>Job Documentation & Assistance</Text>
       <Text fontSize='3xl' color='#008080' align="center">Powered by AI</Text>
       </h2>
     </Stack>
