@@ -48,7 +48,7 @@ function App() {
         {/* Container for search field and accordion */}
       <Flex width="100%"alignItems="flex-start"> 
           <Stack fontFamily="Verdana" spacing={4} align="center" width="300px" ml={100} mr={200}>
-          <Text fontSize='3xl' align="center">Application Filter</Text>
+          <Text fontSize='3xl' align="center" color='#008080'>Application Filter</Text>
             <Input
               placeholder="Company name"
               size="md"
