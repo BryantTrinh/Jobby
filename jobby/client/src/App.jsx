@@ -1,4 +1,5 @@
-import { Heading, Text, Box, Flex, Stack, Input, Accordion, AccordionItem, AccordionButton, AccordionPanel, AccordionIcon, Button, Icon } from "@chakra-ui/react";
+import { Heading, Text, Box, Flex, Stack, Input, Accordion, AccordionItem, AccordionButton, AccordionPanel, AccordionIcon, Button, Icon, Image } from "@chakra-ui/react";
+import logo from './assets/Logo.svg';
 import './App.css';
 
 function App() {
@@ -12,14 +13,12 @@ function App() {
         direction="column"
     >
 
-    <Stack spacing={3} align="center">
-      <Text
-      fontSize='6xl'
-      textAlign='center'
-      mb={15}
-      >
-      Jobby 
-      </Text>
+    <Stack align="center">
+      <Image
+        src={logo}
+        alt="Website logo"
+        // boxSize="500px"
+      />
     </Stack>
 
 
