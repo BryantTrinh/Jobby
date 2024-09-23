@@ -1,4 +1,4 @@
-import { Heading, Text, Box, Flex, Stack, Input, Accordion, AccordionItem, AccordionButton, AccordionPanel, AccordionIcon, Button, Icon, Image } from "@chakra-ui/react";
+import { Heading, Text, Box, Flex, Stack, Input, Accordion, AccordionItem, AccordionButton, AccordionPanel, AccordionIcon, Button, Icon, Image, useToast } from "@chakra-ui/react";
 import logo from './assets/Logo.svg';
 import './App.css';
 
@@ -6,24 +6,33 @@ function App() {
   return (
     <Flex
         width="100vw"
-        height="100vh"
+        height="100%"
         alignContent="flex-start"
         justifyContent="flex-start"
         p={4}
         direction="column"
     >
 
+    {/* Website Logo */}
     <Stack align="center">
       <Image
         src={logo}
         alt="Website logo"
-        // boxSize="500px"
+        
+        boxSize="350px"
       />
+    </Stack>
+
+    <Stack fontFamily="Verdana" mb={10} align="center" mt={-100}>
+      <h2>
+      <Text fontSize='3xl' color='#008080'>Career Documentation & Assistance</Text>
+      <Text fontSize='3xl' color='#008080' align="center">Powered by AI</Text>
+      </h2>
     </Stack>
 
 
       {/* Save application field and save button */}
-      <Stack spacing={4} align="center" mb={20} width="100%">
+      <Stack fontFamily="Verdana" spacing={4} align="center" mb={20} width="100%">
         <Input
           placeholder="Save application via entering in URL"
           size="md"
@@ -37,10 +46,11 @@ function App() {
 
 
         {/* Container for search field and accordion */}
-      <Flex width="100%" mb={20}> 
-          <Stack spacing={4} align="center" width="450px" mr={50}>
+      <Flex width="100%"alignItems="flex-start"> 
+          <Stack fontFamily="Verdana" spacing={4} align="center" width="300px" ml={100} mr={200}>
+          <Text fontSize='3xl' align="center">Application Filter</Text>
             <Input
-              placeholder="Search job applications via company name"
+              placeholder="Company name"
               size="md"
               textAlign="center"
             />
@@ -49,9 +59,8 @@ function App() {
             </Button>
           </Stack>
 
-    <Flex justifyContent="flex-start" width="100%">
-      <Box width="800px" maxWidth="800px" marginBottom="20px" ml="200px">
-        <Accordion defaultIndex={[0]} allowMultiple>
+      <Box width="800px" maxWidth="800px" marginBottom="20px" mr={600}>
+        <Accordion fontFamily="Verdana" defaultIndex={[0]} allowMultiple>
           <AccordionItem>
             <h2>
               <AccordionButton _expanded={{ bg: 'tomato', color: 'white' }}>
@@ -142,7 +151,6 @@ function App() {
         </Box>
       </Flex>
     </Flex>
-  </Flex>
       );
     }
 
