@@ -13,22 +13,10 @@ from .serializer import StateSerializer, JobSerializer
 @api_view(['GET']) 
 def get_all_states(request):
 
-    # fake data
-    states = [
-        {'name': 'California', 'abbrev': 'CA'},
-        {'name': 'Nevada', 'abbrev': 'NV'},
-        {'name': 'Oregon', 'abbrev': 'OR'},
-        {'name': 'Washington', 'abbrev': 'WA'},
-        {'name': 'Remote', 'abbrev': 'REM'},
-    ]
+    states = State.objects.all()
+    serializer = StateSerializer(states, many=True)
+    return Response(serializer.data)
 
-    stateReponse = [];
-
-    for state in states:
-        stateReponse.append(StateSerializer(state).data);
-
-    return Response(stateReponse);
-    # return Response(StateSerializer({'name': 'California', 'abbrev': 'CA'}).data)
 
 @api_view(['POST'])
 def populate_state_database(request):
@@ -88,11 +76,15 @@ def populate_state_database(request):
     ]
 
     # check database if exists, if it doesnt, create
+    newStates = [];
     for state in states:
         try:
             stateObj = State.objects.get(name=state['name'])
         except State.DoesNotExist:
             stateObj = State(name=state['name'], abbrev=state['abbrev'])
-            stateObj.save();
-
-    return Response({'message': 'Successfully populated states in database'}, status=status.HTTP_200_OK)
+            newStates.append(stateObj);
+    if len(newStates) > 0:
+        # bulk create for single create transaction
+        State.objects.bulk_create(newStates);
+        return Response({'message': 'Successfully added states in database'}, status=status.HTTP_200_OK)
+    return Response({'message': 'Database contains all states'}, status=status.HTTP_200_OK);

@@ -8,5 +8,5 @@ from .views import get_all_states, populate_state_database
 # add this url to urls located in project folder in order for project to recognize this url
 urlpatterns = [
     path('states/', get_all_states, name='getAllStates'),
-    path('states/create', populate_state_database, name='createStates')
+    path('states/create/', populate_state_database, name='createStates')
 ]
