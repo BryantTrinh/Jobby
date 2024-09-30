@@ -7,3 +7,10 @@
 
 **Database** - Postgres
  - Postgres and PgAdmin4 Windows [download](https://www.enterprisedb.com/downloads/postgres-postgresql-downloads)
+
+
+ To run backend, the following packages must be installed:
+  - django
+  - django-environ
+  - psycopg2
+  - djangorestframework

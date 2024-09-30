@@ -6,16 +6,19 @@ class State(models.Model):
     abbrev = models.CharField(max_length=255, blank = False, unique=True)
     def __str__(self):
         return str(self.name)
+    
 
 
 class Job(models.Model):
-    title = models.CharField(max_length=255)
-    company = models.CharField(max_length=255)
-    description = models.TextField()
-    requirements = models.TextField()
+    title = models.CharField(max_length=255, null=False, blank=False)
+    company = models.CharField(max_length=255, null=False, blank=False)
+    description = models.TextField(null=True)
+    requirements = models.TextField(null=True)
+    salary = models.FloatField(null=True)
+    applied = models.DateField(null=True)
     state = models.ForeignKey(
         State,
-        on_delete=models.PROTECT,
+        on_delete=models.CASCADE,
         blank = False
     )
     def __str__(self):
