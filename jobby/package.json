@@ -1,4 +1,7 @@
 {
+  "scripts": {
+    "start": "concurrently --kill-others \"cd client && npm run dev\" \"cd server && python manage.py runserver\""
+  },
   "dependencies": {
     "concurrently": "^9.0.1"
   }
