@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   Heading,
   Text,
@@ -21,6 +21,8 @@ import {
   ModalFooter,
   ModalBody,
   ModalCloseButton,
+  Textarea,
+  FormLabel,
   useDisclosure
 } from "@chakra-ui/react";
 import logo from './assets/Logo.svg';
@@ -30,6 +32,29 @@ function JobAccordion() {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const finalRef = React.useRef(null);
 
+  const [isEditing, setIsEditing] = useState(false);
+
+  const [jobDetails, setJobDetails] = useState({
+    title: 'Nexon-Full Stack GM',
+    company: 'Nexon',
+    url: 'www.nexon.com/careers/full_stack_GM',
+    appliedDate: '01/01/2025',
+    state: 'California',
+    salary: '$XXX,XXX',
+    requirements: 'HTML, CSS, React, Python, SQL, PostGres',
+    description: 'Lorem ipsum odor amet, consectetuer adipiscing elit...'
+  });
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setJobDetails({ ...jobDetails, [name]: value });
+  };
+
+  const toggleEditMode = () => {
+    setIsEditing(!isEditing);
+  };
+
+// Job accordion
   return (
     <Box width="800px" maxWidth="800px" marginBottom="20px" mr={600}>
       <Accordion fontFamily="Verdana" defaultIndex={[0]} allowMultiple>
@@ -37,39 +62,139 @@ function JobAccordion() {
           <h2>
             <AccordionButton _expanded={{ bg: 'tomato', color: 'white' }} onClick={onOpen}>
               <Box as='span' flex='1' textAlign='left'>
-                Job 1 (Company Name)
+                {jobDetails.company}
               </Box>
               <AccordionIcon />
             </AccordionButton>
           </h2>
-          <AccordionPanel pb={4}>
-          </AccordionPanel>
+          <AccordionPanel pb={4}></AccordionPanel>
         </AccordionItem>
       </Accordion>
 
-      {/* Modal that opens when AccordionButton is clicked */}
+      {/* Modal that opens when job accordion is clicked */}
       <Modal finalFocusRef={finalRef} isOpen={isOpen} onClose={onClose}>
         <ModalOverlay />
         <ModalContent>
-          <ModalHeader textAlign="center">Job Details</ModalHeader>
+          <ModalHeader textAlign="center">{isEditing ? 'Edit Job Details' : 'Job Details'}</ModalHeader>
           <ModalCloseButton />
+
           <ModalBody>
-            <Box>
-              <p><strong>Title:</strong> Nexon-Full Stack GM</p>
-              <p><strong>Company:</strong> Nexon</p>
-              <p><strong>Job URL:</strong> <a href="job-url-populates-here" target="_blank">www.nexon.com/careers/full_stack_GM</a></p>
-              <p><strong>Applied Date:</strong> 01/01/2025</p>
-              <p><strong>State:</strong> California</p>
-              <p><strong>Salary:</strong> $XXX,XXX</p>
-              <p><strong>Requirements:</strong> HTML, CSS, React, Python, SQL, PostGres</p>
-              <p><strong>Description:</strong>Lorem ipsum odor amet, consectetuer adipiscing elit. Lacinia feugiat neque euismod tempor hac. Cursus nostra ut dui aenean aptent facilisi. Ad conubia sagittis augue lacus per malesuada at sollicitudin. Nulla eget suspendisse senectus sapien pharetra. Lacinia ullamcorper neque accumsan ullamcorper nunc enim praesent pretium. Facilisis vulputate tristique; vel ultrices eget vivamus. Nibh fringilla suspendisse curae cubilia nostra aliquam volutpat. Tristique litora sit accumsan litora volutpat parturient torquent vel. Condimentum congue ut dictum feugiat fringilla vulputate. Senectus magna senectus phasellus habitant imperdiet. Aenean habitant accumsan senectus, nunc penatibus nam. Pretium gravida iaculis mus proin adipiscing est. Eget adipiscing ultrices penatibus libero porttitor varius morbi. Odio imperdiet tempor tellus ultrices sagittis. Bibendum libero facilisis platea elit pharetra habitant. Id sapien felis metus nam ullamcorper at dolor risus tincidunt.</p>
-            </Box>
+            {isEditing ? (
+              <Stack spacing={4}>
+                <Box>
+                  <FormLabel>Job Title:</FormLabel>
+                  <Input
+                    name="title"
+                    placeholder="Job Title"
+                    value={jobDetails.title}
+                    onChange={handleInputChange}
+                  />
+                </Box>
+                
+                <Box>
+                  <FormLabel>Company:</FormLabel>
+                  <Input
+                    name="company"
+                    placeholder="Company"
+                    value={jobDetails.company}
+                    onChange={handleInputChange}
+                  />
+                </Box>
+                
+                <Box>
+                  <FormLabel>Job URL:</FormLabel>
+                  <Input
+                    name="url"
+                    placeholder="Job URL"
+                    value={jobDetails.url}
+                    onChange={handleInputChange}
+                  />
+                </Box>
+                
+                <Box>
+                  <FormLabel>Applied Date:</FormLabel>
+                  <Input
+                    name="appliedDate"
+                    placeholder="Applied Date"
+                    value={jobDetails.appliedDate}
+                    onChange={handleInputChange}
+                  />
+                </Box>
+                
+                <Box>
+                  <FormLabel>State:</FormLabel>
+                  <Input
+                    name="state"
+                    placeholder="State"
+                    value={jobDetails.state}
+                    onChange={handleInputChange}
+                  />
+                </Box>
+                
+                <Box>
+                  <FormLabel>Salary:</FormLabel>
+                  <Input
+                    name="salary"
+                    placeholder="Salary"
+                    value={jobDetails.salary}
+                    onChange={handleInputChange}
+                  />
+                </Box>
+                
+                <Box>
+                  <FormLabel>Requirements:</FormLabel>
+                  <Input
+                    name="requirements"
+                    placeholder="Requirements"
+                    value={jobDetails.requirements}
+                    onChange={handleInputChange}
+                  />
+                </Box>
+                
+                <Box>
+                  <FormLabel>Description:</FormLabel>
+                  <Textarea
+                    name="description"
+                    placeholder="Description"
+                    value={jobDetails.description}
+                    onChange={handleInputChange}
+                  />
+                </Box>
+              </Stack>
+            ) : (
+              <Box>
+                <p><strong>Title:</strong> {jobDetails.title}</p>
+                <p><strong>Company:</strong> {jobDetails.company}</p>
+                <p><strong>Job URL:</strong> <a href={jobDetails.url} target="_blank" rel="noopener noreferrer">{jobDetails.url}</a></p>
+                <p><strong>Applied Date:</strong> {jobDetails.appliedDate}</p>
+                <p><strong>State:</strong> {jobDetails.state}</p>
+                <p><strong>Salary:</strong> {jobDetails.salary}</p>
+                <p><strong>Requirements:</strong> {jobDetails.requirements}</p>
+                <p><strong>Description:</strong> {jobDetails.description}</p>
+              </Box>
+            )}
           </ModalBody>
 
           <ModalFooter>
-            <Button colorScheme='blue' mr={3} onClick={onClose}>
-              Close
-            </Button>
+            {isEditing ? (
+              <>
+                <Button colorScheme='teal' onClick={toggleEditMode}>
+                  Save Changes
+                </Button>
+                <Button variant='ghost' ml={3} onClick={toggleEditMode}>
+                  Cancel
+                </Button>
+              </>
+            ) : (
+              <>
+                <Button variant='ghost' colorScheme='teal' onClick={toggleEditMode}>
+                  Edit
+                </Button>
+                <Button colorScheme='blue' mr={3} onClick={onClose}>
+                  Close
+                </Button>
+              </>
+            )}
           </ModalFooter>
         </ModalContent>
       </Modal>
