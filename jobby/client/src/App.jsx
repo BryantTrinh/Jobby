@@ -30,9 +30,18 @@ import './App.css';
 
 function JobAccordion() {
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const finalRef = React.useRef(null);
-
   const [isEditing, setIsEditing] = useState(false);
+  const [overlay, setOverlay] = useState(null);
+
+  const OverlayTwo = () => (
+    <ModalOverlay
+      bg='none'
+      backdropFilter='auto'
+      backdropInvert='80%'
+      backdropBlur='2px'
+    />
+  );
+
 
   const [jobDetails, setJobDetails] = useState({
     title: 'Nexon-Full Stack GM',
@@ -60,7 +69,12 @@ function JobAccordion() {
       <Accordion fontFamily="Verdana" defaultIndex={[0]} allowMultiple>
         <AccordionItem>
           <h2>
-            <AccordionButton _expanded={{ bg: 'tomato', color: 'white' }} onClick={onOpen}>
+            <AccordionButton _expanded={{ bg: 'tomato', color: 'white' }} 
+            onClick={() => {
+              setOverlay(<OverlayTwo />);
+              onOpen();
+            }}
+            >
               <Box as='span' flex='1' textAlign='left'>
                 {jobDetails.company}
               </Box>
@@ -72,8 +86,8 @@ function JobAccordion() {
       </Accordion>
 
       {/* Modal that opens when job accordion is clicked */}
-      <Modal finalFocusRef={finalRef} isOpen={isOpen} onClose={onClose}>
-        <ModalOverlay />
+      <Modal isOpen={isOpen} onClose={onClose}>
+        {overlay}
         <ModalContent>
           <ModalHeader textAlign="center">{isEditing ? 'Edit Job Details' : 'Job Details'}</ModalHeader>
           <ModalCloseButton />
