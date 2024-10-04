@@ -207,6 +207,7 @@ function App() {
     <Flex
         width="100vw"
         height="100%"
+        bg="white"
         alignContent="flex-start"
         justifyContent="flex-start"
         p={4}
