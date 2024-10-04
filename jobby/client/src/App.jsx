@@ -207,9 +207,8 @@ function App() {
     <Flex
         width="100vw"
         height="100%"
-        bg="white"
-        alignContent="flex-start"
-        justifyContent="flex-start"
+        alignContent="center"
+        justifyContent="center"
         p={4}
         direction="column"
     >
@@ -244,7 +243,7 @@ function App() {
     </Stack>
 
     {/* Container for search field and accordion */}
-    <Flex width="100%" alignItems="flex-start"> 
+    <Flex width="100%" justifyContent="center" alignItems="center"> 
       <Stack fontFamily="Verdana" spacing={4} align="center" width="300px" ml={100} mr={200}>
         <Text fontSize='3xl' align="center" color='#008080'>Application Filter</Text>
         <Input
