@@ -1,6 +1,6 @@
 # Jobby
 
-**Front end** - Vite, React
+**Front end** - Vite, React, ChakraUI
 
 **Backend** - Python (Django framework)
 - Python v3.12.6 Windows [download](https://www.python.org/downloads/release/python-3126/)

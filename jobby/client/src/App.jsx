@@ -86,133 +86,162 @@ function JobAccordion() {
       </Accordion>
 
       {/* Modal that opens when job accordion is clicked */}
-      <Modal isOpen={isOpen} onClose={onClose}>
-        {overlay}
-        <ModalContent>
-          <ModalHeader textAlign="center">{isEditing ? 'Edit Job Details' : 'Job Details'}</ModalHeader>
-          <ModalCloseButton />
+<Modal isOpen={isOpen} onClose={onClose}>
+  {overlay}
+  <ModalContent>
+    <ModalHeader textAlign="center">{isEditing ? 'Edit Job Details' : 'Job Details'}</ModalHeader>
+    <ModalCloseButton />
 
-          <ModalBody>
-            {isEditing ? (
-              <Stack spacing={4}>
-                <Box>
-                  <FormLabel>Job Title:</FormLabel>
-                  <Input
-                    name="title"
-                    placeholder="Job Title"
-                    value={jobDetails.title}
-                    onChange={handleInputChange}
-                  />
-                </Box>
-                
-                <Box>
-                  <FormLabel>Company:</FormLabel>
-                  <Input
-                    name="company"
-                    placeholder="Company"
-                    value={jobDetails.company}
-                    onChange={handleInputChange}
-                  />
-                </Box>
-                
-                <Box>
-                  <FormLabel>Job URL:</FormLabel>
-                  <Input
-                    name="url"
-                    placeholder="Job URL"
-                    value={jobDetails.url}
-                    onChange={handleInputChange}
-                  />
-                </Box>
-                
-                <Box>
-                  <FormLabel>Applied Date:</FormLabel>
-                  <Input
-                    name="appliedDate"
-                    placeholder="Applied Date"
-                    value={jobDetails.appliedDate}
-                    onChange={handleInputChange}
-                  />
-                </Box>
-                
-                <Box>
-                  <FormLabel>State:</FormLabel>
-                  <Input
-                    name="state"
-                    placeholder="State"
-                    value={jobDetails.state}
-                    onChange={handleInputChange}
-                  />
-                </Box>
-                
-                <Box>
-                  <FormLabel>Salary:</FormLabel>
-                  <Input
-                    name="salary"
-                    placeholder="Salary"
-                    value={jobDetails.salary}
-                    onChange={handleInputChange}
-                  />
-                </Box>
-                
-                <Box>
-                  <FormLabel>Requirements:</FormLabel>
-                  <Input
-                    name="requirements"
-                    placeholder="Requirements"
-                    value={jobDetails.requirements}
-                    onChange={handleInputChange}
-                  />
-                </Box>
-                
-                <Box>
-                  <FormLabel>Description:</FormLabel>
-                  <Textarea
-                    name="description"
-                    placeholder="Description"
-                    value={jobDetails.description}
-                    onChange={handleInputChange}
-                  />
-                </Box>
-              </Stack>
-            ) : (
-              <Box>
-                <p><strong>Title:</strong> {jobDetails.title}</p>
-                <p><strong>Company:</strong> {jobDetails.company}</p>
-                <p><strong>Job URL:</strong> <a href={jobDetails.url} target="_blank" rel="noopener noreferrer">{jobDetails.url}</a></p>
-                <p><strong>Applied Date:</strong> {jobDetails.appliedDate}</p>
-                <p><strong>State:</strong> {jobDetails.state}</p>
-                <p><strong>Salary:</strong> {jobDetails.salary}</p>
-                <p><strong>Requirements:</strong> {jobDetails.requirements}</p>
-                <p><strong>Description:</strong> {jobDetails.description}</p>
-              </Box>
-            )}
-          </ModalBody>
+    <ModalBody>
+      <Stack spacing={4}>
+        {/* Job Title */}
+        <Box border="5px solid teal" p={4} borderRadius="md">
+          <FormLabel>Job Title:</FormLabel>
+          {isEditing ? (
+            <Input
+              name="title"
+              placeholder="Job Title"
+              value={jobDetails.title}
+              onChange={handleInputChange}
+            />
+          ) : (
+            <Text>{jobDetails.title}</Text>
+          )}
+        </Box>
 
-          <ModalFooter>
-            {isEditing ? (
-              <>
-                <Button colorScheme='teal' onClick={toggleEditMode}>
-                  Save Changes
-                </Button>
-                <Button variant='ghost' ml={3} onClick={toggleEditMode}>
-                  Cancel
-                </Button>
-              </>
-            ) : (
-              <>
-                <Button variant='ghost' colorScheme='teal' onClick={toggleEditMode}>
-                  Edit
-                </Button>
-                <Button colorScheme='blue' mr={3} onClick={onClose}>
-                  Close
-                </Button>
-              </>
-            )}
-          </ModalFooter>
-        </ModalContent>
-      </Modal>
-    </Box>
+        {/* Company */}
+        <Box border="5px solid teal" p={4} borderRadius="md">
+          <FormLabel>Company:</FormLabel>
+          {isEditing ? (
+            <Input
+              name="company"
+              placeholder="Company"
+              value={jobDetails.company}
+              onChange={handleInputChange}
+            />
+          ) : (
+            <Text>{jobDetails.company}</Text>
+          )}
+        </Box>
+
+        {/* Job URL */}
+        <Box border="5px solid teal" p={4} borderRadius="md">
+          <FormLabel>Job URL:</FormLabel>
+          {isEditing ? (
+            <Input
+              name="url"
+              placeholder="Job URL"
+              value={jobDetails.url}
+              onChange={handleInputChange}
+            />
+          ) : (
+            <a href={jobDetails.url} target="_blank" rel="noopener noreferrer">
+              {jobDetails.url}
+            </a>
+          )}
+        </Box>
+
+        {/* Applied Date */}
+        <Box border="5px solid teal" p={4} borderRadius="md">
+          <FormLabel>Applied Date:</FormLabel>
+          {isEditing ? (
+            <Input
+              name="appliedDate"
+              placeholder="Applied Date"
+              value={jobDetails.appliedDate}
+              onChange={handleInputChange}
+            />
+          ) : (
+            <Text>{jobDetails.appliedDate}</Text>
+          )}
+        </Box>
+
+        {/* State */}
+        <Box border="5px solid teal" p={4} borderRadius="md">
+          <FormLabel>State:</FormLabel>
+          {isEditing ? (
+            <Input
+              name="state"
+              placeholder="State"
+              value={jobDetails.state}
+              onChange={handleInputChange}
+            />
+          ) : (
+            <Text>{jobDetails.state}</Text>
+          )}
+        </Box>
+
+        {/* Salary */}
+        <Box border="5px solid teal" p={4} borderRadius="md">
+          <FormLabel>Salary:</FormLabel>
+          {isEditing ? (
+            <Input
+              name="salary"
+              placeholder="Salary"
+              value={jobDetails.salary}
+              onChange={handleInputChange}
+            />
+          ) : (
+            <Text>{jobDetails.salary}</Text>
+          )}
+        </Box>
+
+        {/* Requirements */}
+        <Box border="5px solid teal" p={4} borderRadius="md">
+          <FormLabel>Requirements:</FormLabel>
+          {isEditing ? (
+            <Input
+              name="requirements"
+              placeholder="Requirements"
+              value={jobDetails.requirements}
+              onChange={handleInputChange}
+            />
+          ) : (
+            <Text>{jobDetails.requirements}</Text>
+          )}
+        </Box>
+
+        {/* Description */}
+        <Box border="5px solid teal" p={4} borderRadius="md">
+          <FormLabel>Description:</FormLabel>
+          {isEditing ? (
+            <Textarea
+              name="description"
+              placeholder="Description"
+              value={jobDetails.description}
+              onChange={handleInputChange}
+            />
+          ) : (
+            <Text>{jobDetails.description}</Text>
+          )}
+        </Box>
+      </Stack>
+    </ModalBody>
+
+    <ModalFooter>
+      {isEditing ? (
+        <>
+          <Button colorScheme='teal' onClick={toggleEditMode}>
+            Save Changes
+          </Button>
+          <Button variant='ghost' ml={3} onClick={toggleEditMode}>
+            Cancel
+          </Button>
+        </>
+      ) : (
+        <>
+          <Button variant='ghost' colorScheme='teal' onClick={toggleEditMode}>
+            Edit
+          </Button>
+          <Button colorScheme='blue' mr={3} onClick={onClose}>
+            Close
+          </Button>
+        </>
+      )}
+    </ModalFooter>
+  </ModalContent>
+</Modal>
+</Box>
   );
 }
 
