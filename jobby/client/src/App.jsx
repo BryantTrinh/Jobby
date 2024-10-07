@@ -95,7 +95,7 @@ function JobAccordion() {
     <ModalBody>
       <Stack spacing={4}>
         {/* Job Title */}
-        <Box border="5px solid teal" p={4} borderRadius="md">
+        <Box border={isEditing ? "5px solid tomato" : "5px solid teal"} p={4} borderRadius="md">
           <FormLabel>Job Title:</FormLabel>
           {isEditing ? (
             <Input
@@ -110,7 +110,7 @@ function JobAccordion() {
         </Box>
 
         {/* Company */}
-        <Box border="5px solid teal" p={4} borderRadius="md">
+        <Box border={isEditing ? "5px solid tomato" : "5px solid teal"} p={4} borderRadius="md">
           <FormLabel>Company:</FormLabel>
           {isEditing ? (
             <Input
@@ -125,7 +125,7 @@ function JobAccordion() {
         </Box>
 
         {/* Job URL */}
-        <Box border="5px solid teal" p={4} borderRadius="md">
+        <Box border={isEditing ? "5px solid tomato" : "5px solid teal"} p={4} borderRadius="md">
           <FormLabel>Job URL:</FormLabel>
           {isEditing ? (
             <Input
@@ -142,7 +142,7 @@ function JobAccordion() {
         </Box>
 
         {/* Applied Date */}
-        <Box border="5px solid teal" p={4} borderRadius="md">
+        <Box border={isEditing ? "5px solid tomato" : "5px solid teal"} p={4} borderRadius="md">
           <FormLabel>Applied Date:</FormLabel>
           {isEditing ? (
             <Input
@@ -157,7 +157,7 @@ function JobAccordion() {
         </Box>
 
         {/* State */}
-        <Box border="5px solid teal" p={4} borderRadius="md">
+        <Box border={isEditing ? "5px solid tomato" : "5px solid teal"} p={4} borderRadius="md">
           <FormLabel>State:</FormLabel>
           {isEditing ? (
             <Input
@@ -172,7 +172,7 @@ function JobAccordion() {
         </Box>
 
         {/* Salary */}
-        <Box border="5px solid teal" p={4} borderRadius="md">
+        <Box border={isEditing ? "5px solid tomato" : "5px solid teal"} p={4} borderRadius="md">
           <FormLabel>Salary:</FormLabel>
           {isEditing ? (
             <Input
@@ -187,7 +187,7 @@ function JobAccordion() {
         </Box>
 
         {/* Requirements */}
-        <Box border="5px solid teal" p={4} borderRadius="md">
+        <Box border={isEditing ? "5px solid tomato" : "5px solid teal"} p={4} borderRadius="md">
           <FormLabel>Requirements:</FormLabel>
           {isEditing ? (
             <Input
@@ -202,7 +202,7 @@ function JobAccordion() {
         </Box>
 
         {/* Description */}
-        <Box border="5px solid teal" p={4} borderRadius="md">
+        <Box border={isEditing ? "5px solid tomato" : "5px solid teal"} p={4} borderRadius="md">
           <FormLabel>Description:</FormLabel>
           {isEditing ? (
             <Textarea
