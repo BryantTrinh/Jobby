@@ -1,16 +1,29 @@
 # Website parsers
 from urllib.parse import urlparse, parse_qs
-import requests
 from bs4 import BeautifulSoup
 import google.generativeai as genai
-import environ
-
 import os          
-from dotenv import load_dotenv, find_dotenv
+from dotenv import load_dotenv
 from pathlib import Path
+import time
+from selenium import webdriver
+from selenium.webdriver import ChromeOptions
+
+# Load env file from jobby/server/server/.env
+BASE_DIR = Path(__file__).resolve().parent.parent.parent
+envFile = os.path.join(BASE_DIR, 'server', '.env')
+load_dotenv(envFile)
+GOOGLE_API_KEY = os.getenv('GOOGLE_APY_KEY')
+
+# configure google gemini
+genai.configure(api_key=GOOGLE_API_KEY)
+model = genai.GenerativeModel('gemini-pro')
 
 # takes in url {string} and returns json object of job details
 def parseWebsite(url):
+
+    # initalize google
+
     websiteSet = set([
         "www.indeed.com",
         "www.linkedin.com"
@@ -18,9 +31,15 @@ def parseWebsite(url):
 
     urlComponents = urlparse(url)
     print(urlComponents.netloc)
+
+    soup = linkToSoup_selenium(url, isv=True, returnErr=False)
+    if not soup:
+        print('Error getting soup')
+        return
+    
     if urlComponents.netloc in websiteSet:
         if urlComponents.netloc == 'www.indeed.com':
-            parseIndeed(url, urlComponents)
+            parseIndeed(url, urlComponents, soup)
         elif urlComponents.netloc == 'www.linkedin.com':
             parseLinkedIn(url, urlComponents)
     # else:
@@ -28,11 +47,10 @@ def parseWebsite(url):
 
 
 
-def parseIndeed(url, urlComponents):
-    webResponse = requests.get(url)
-    soup = BeautifulSoup(webResponse.text, 'html.parser')
-    data = soup.text
+def parseIndeed(url, urlComponents, soup):
 
+    # jobData = soup.find(id='jobsearch-ViewjobPaneWrapper')
+    # print(jobData)
     jobDetails = soup.find(id='jobDetailsSection')
     print(jobDetails)
     # print('parse indeed site')
@@ -51,22 +69,35 @@ def parseLinkedIn(url, urlComponents):
         print('parse from linked job details')
 
 
+def linkToSoup_selenium(lUrl, tmout=None, fparser='html.parser', isv=True, returnErr=False):
+    try:
+        # I copy chromedriver.exe to the same folder as this py file
+        options = ChromeOptions()
+        options.add_argument("--headless=old")
+        user_agent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.6668.90 Safari/537.36'
+        options.add_argument(f'user-agent={user_agent}')
+        driver = webdriver.Chrome(options=options)
+        driver.maximize_window()
+        driver.get(lUrl)
+        if type(tmout) in [int, float]: time.sleep(tmout) 
+ 
+        lSoup = BeautifulSoup(driver.page_source, fparser)
+        driver.close()
+        del driver  # (just in case)
+        return lSoup
+    except Exception as e:
+        if isv: print(str(e))   ## set isv=False to suppress error message ##
+        return str(e) if returnErr else None
+
 def llm_function(query):
-    # response = model.generate_content(query);
-    # return response.to_dict
-    return
+    response = model.generate_content(query);
+    return response.to_dict
 
 # for testing
 if __name__ == '__main__':
     
-
-    BASE_DIR = Path(__file__).resolve().parent.parent
-    envFile = os.path.join(BASE_DIR, '.env')
-    load_dotenv(envFile)
-    print(os.getenv('GOOGLE_APY_KEY'))
-    # key = os.environ['GOOGLE_API_KEY']
-
-    # parseWebsite('https://www.indeed.com/jobs?q=software+engineer&l=Remote&sort=date&explvl=mid_level&ts=1728338452752&pts=1728153144267&sc=0kf%3Aattr%28EVPJU%7CJB2WC%7CNGEEK%7CWD7PP%252COR%29explvl%28MID_LEVEL%29%3B&from=searchOnHP&rq=1&rsIdx=0&fromage=last&vjk=404fea78bab6aa12')
+    print(GOOGLE_API_KEY)
+    parseWebsite('https://www.indeed.com/jobs?q=software+engineer&l=Remote&sc=0kf%3Aattr%28EVPJU%7CJB2WC%7CNGEEK%7CWD7PP%252COR%29%3B&from=searchOnDesktopSerp&vjk=dcd58daeb24cdbda&advn=1237621172012789')
 
     # parseWebsite('https://www.linkedin.com/jobs/collections/recommended/?currentJobId=4041180884')
 

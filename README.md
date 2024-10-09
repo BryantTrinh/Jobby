@@ -16,3 +16,4 @@
   - [djangorestframework](https://pypi.org/project/djangorestframework/)
   - [BeautifulSoup](https://pypi.org/project/beautifulsoup4/)
   - [google-generativeai](https://pypi.org/project/google-generativeai/)
+  - [selenium](https://www.selenium.dev/)
