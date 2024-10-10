@@ -1,13 +1,14 @@
-# Website parsers
+
 from urllib.parse import urlparse, parse_qs
-from bs4 import BeautifulSoup
 import google.generativeai as genai
 import os          
 from dotenv import load_dotenv
 from pathlib import Path
+from bs4 import BeautifulSoup
 import time
 from selenium import webdriver
 from selenium.webdriver import ChromeOptions
+import json
 
 # Load env file from jobby/server/server/.env
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
@@ -46,14 +47,17 @@ def parseWebsite(url):
         # Do other parsing
 
 
-
 def parseIndeed(url, urlComponents, soup):
 
-    # jobData = soup.find(id='jobsearch-ViewjobPaneWrapper')
+    jobData = soup.find(id='jobsearch-ViewjobPaneWrapper')
     # print(jobData)
-    jobDetails = soup.find(id='jobDetailsSection')
-    print(jobDetails)
-    # print('parse indeed site')
+
+    query = "Create an object with the following fields extracted from the data: job_title as string, company as string, job_description as string, job_location as string, salary as string, job_requirements as array of strings from the HTML element " + jobData.text 
+
+    apiResponse = llm_function(query);
+    jobDict = parseJson(apiResponse.candidates[0].content.parts[0].text)
+    print(jobDict)
+    return jobDict
 
 
 
@@ -68,7 +72,13 @@ def parseLinkedIn(url, urlComponents):
     else:
         print('parse from linked job details')
 
+def llm_function(query):
+    response = model.generate_content(query);
+    return response
 
+
+
+# helper functions
 def linkToSoup_selenium(lUrl, tmout=None, fparser='html.parser', isv=True, returnErr=False):
     try:
         # I copy chromedriver.exe to the same folder as this py file
@@ -89,10 +99,15 @@ def linkToSoup_selenium(lUrl, tmout=None, fparser='html.parser', isv=True, retur
         if isv: print(str(e))   ## set isv=False to suppress error message ##
         return str(e) if returnErr else None
 
-def llm_function(query):
-    response = model.generate_content(query);
-    return response.to_dict
 
+def parseJson(text):
+    # clean u ` chars from response
+    removedChars = text.replace('`', '')
+    try:
+        json_object = json.loads(removedChars)
+        return json_object
+    except json.JSONDecodeError:
+        print("Invalid Json Format")
 # for testing
 if __name__ == '__main__':
     
