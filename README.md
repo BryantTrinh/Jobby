@@ -17,3 +17,4 @@
   - [BeautifulSoup](https://pypi.org/project/beautifulsoup4/)
   - [google-generativeai](https://pypi.org/project/google-generativeai/)
   - [selenium](https://www.selenium.dev/)
+  - [django cors](https://pypi.org/project/django-cors-headers/)
