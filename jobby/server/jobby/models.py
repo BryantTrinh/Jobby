@@ -22,5 +22,6 @@ class Job(models.Model):
         on_delete=models.CASCADE,
         blank = False
     )
+    city = models.TextField(null=True, default=None)
     def __str__(self):
         return "{title} - {company}, {state.name}"
