@@ -37,3 +37,8 @@ def job_detail(request, pk):
     elif request.method == 'DELETE':
         job.delete()
         return Response(status=status.HTTP_200_OK)
+    
+
+@api_view(['POST'])
+def save_job(request):
+    return
