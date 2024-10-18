@@ -51,6 +51,8 @@ def parse_indeed(url, queryDict, soup):
     if 'vjk' in queryDict:
         # parse from jobList
         jobData = soup.find(id='jobsearch-ViewjobPaneWrapper')
+        if jobData is None:
+            raise Exception(f"Error getting html contents for {url}")
         htmlText = jobData.text
         
     else:
@@ -63,9 +65,10 @@ def parse_indeed(url, queryDict, soup):
         htmlText = jobInfo.text + jobDetails.text + jobLocation.text + jobDescription.text
 
     if htmlText is not None:
-        query = "Create a json object with the following fields extracted from the data: job_title as string, company as string, job_description (including any responsibilities) as string, job_location as string, salary as string, job_requirements as array of strings from the HTML element " + htmlText
+        query = "Create a json object with the following fields extracted from the data: job_title as string, company as string, job_description (including any responsibilities) as string, state as string, city as string, salary as string, job_requirements as array of strings from the HTML element " + htmlText
         apiResponse = llm_function(query);
         jobDict = parseJson(apiResponse.candidates[0].content.parts[0].text)
+        # add url to dict
         jobDict['url'] = url
         return jobDict
 
