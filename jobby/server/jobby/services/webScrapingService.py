@@ -66,6 +66,7 @@ def parse_indeed(url, queryDict, soup):
         query = "Create a json object with the following fields extracted from the data: job_title as string, company as string, job_description (including any responsibilities) as string, job_location as string, salary as string, job_requirements as array of strings from the HTML element " + htmlText
         apiResponse = llm_function(query);
         jobDict = parseJson(apiResponse.candidates[0].content.parts[0].text)
+        jobDict['url'] = url
         return jobDict
 
 
