@@ -26,7 +26,8 @@ const JobScraper = () => {
   // State variables for editable job data
   const [jobTitle, setJobTitle] = useState('');
   const [company, setCompany] = useState('');
-  const [location, setLocation] = useState('');
+  const [city, setCity] = useState('');
+  const [state, setState] = useState('');
   const [salary, setSalary] = useState('');
   const [description, setDescription] = useState('');
 
@@ -39,10 +40,11 @@ const JobScraper = () => {
     setLoading(true);
     try {
       const response = await fetch(`http://127.0.0.1:8000/api/scrape/?url=${encodeURIComponent(url)}`, {
-        method: 'GET',
+        method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
+        body: JSON.stringify({ url })
       });
 
       if (!response.ok) {
@@ -50,14 +52,14 @@ const JobScraper = () => {
         throw new Error(`Failed to fetch data: ${response.status}`);
       }
 
-      // Parsing response data as a JSON
       const data = await response.json();
       setJobData(data);
 
       // Initialize editable fields with fetched data
       setJobTitle(data.job_title || '');
       setCompany(data.company || '');
-      setLocation(data.job_location || '');
+      setCity(data.city || '');
+      setState(data.state || '');
       setSalary(data.salary || 'Not provided');
       setDescription(data.job_description || '');
       
@@ -75,7 +77,8 @@ const JobScraper = () => {
     console.log("User confirms job data is correct:", {
       jobTitle,
       company,
-      location,
+      city,
+      state,
       salary,
       description,
     });
@@ -103,7 +106,7 @@ const JobScraper = () => {
           <ModalHeader>Confirm Job Information</ModalHeader>
           <ModalCloseButton />
           <ModalBody>
-            
+
             {/* Job Title */}
             <FormControl>
               <FormLabel>Job Title</FormLabel>
@@ -122,15 +125,24 @@ const JobScraper = () => {
               />
             </FormControl>
 
-            {/* Location */}
+            {/* City */}
             <FormControl mt={4}>
-              <FormLabel>Location</FormLabel>
+              <FormLabel>City</FormLabel>
               <Input 
-                value={location} 
-                onChange={(e) => setLocation(e.target.value)} 
+                value={city} 
+                onChange={(e) => setCity(e.target.value)} 
               />
             </FormControl>
 
+            {/* State */}
+            <FormControl mt={4}>
+              <FormLabel>State</FormLabel>
+              <Input 
+                value={state} 
+                onChange={(e) => setState(e.target.value)} 
+              />
+            </FormControl>
+            
             {/* Salary */}
             <FormControl mt={4}>
               <FormLabel>Salary</FormLabel>
