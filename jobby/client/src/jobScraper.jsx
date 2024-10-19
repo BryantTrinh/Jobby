@@ -15,13 +15,22 @@ import {
   FormLabel,
   useDisclosure,
   Progress,
+  Accordion,
+  AccordionItem,
+  AccordionButton,
+  AccordionPanel,
+  AccordionIcon,
+  Stack,
+  Text,
 } from "@chakra-ui/react";
+import JobAccordion from './JobAccordion';
 
 const JobScraper = () => {
   const [url, setUrl] = useState('');
   const [jobData, setJobData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [progress, setProgress] = useState(0);
+  const [savedJobs, setSavedJobs] = useState([]);
   const { isOpen, onOpen, onClose } = useDisclosure();
 
   // State variables for editable job data
@@ -92,6 +101,9 @@ const JobScraper = () => {
   };
 
   const handleConfirmation = () => {
+    const newJob = { jobTitle, company, city, state, salary, description };
+    setSavedJobs((prevJobs) => [...prevJobs, newJob]);
+
     console.log("User confirms job data is correct:", {
       jobTitle,
       company,
@@ -198,6 +210,9 @@ const JobScraper = () => {
           </ModalFooter>
         </ModalContent>
       </Modal>
+      
+    <JobAccordion savedJobs={savedJobs} setSavedJobs={setSavedJobs} />
+
     </Box>
   );
 };
