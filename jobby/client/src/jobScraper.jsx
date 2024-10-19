@@ -14,13 +14,14 @@ import {
   FormControl,
   FormLabel,
   useDisclosure,
-  Spinner,
+  Progress,
 } from "@chakra-ui/react";
 
 const JobScraper = () => {
   const [url, setUrl] = useState('');
   const [jobData, setJobData] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [progress, setProgress] = useState(0);
   const { isOpen, onOpen, onClose } = useDisclosure();
 
   // State variables for editable job data
@@ -36,8 +37,24 @@ const JobScraper = () => {
     setUrl(e.target.value);
   };
 
+  // call fetchJobData, set loading to true, which means fetching operation in progress
   const fetchJobData = async () => {
     setLoading(true);
+    // Percentage progress instead of a loading spinner. More visually appealing
+    setProgress(0);
+    let intervalId;
+    // setInterval is a JS function that repeatedly executes function at my specified time interval, every 190ms
+    // prevProgress is the current progress, if % is 95% or more, it returns prevProgress without incrementing
+    intervalId = setInterval(() => {
+      setProgress((prevProgress) => {
+        if (prevProgress < 99) {
+          return prevProgress +1;
+        } else {
+          return prevProgress;
+        }
+      });
+    }, 190);
+
     try {
       const response = await fetch(`http://127.0.0.1:8000/api/scrape/?url=${encodeURIComponent(url)}`, {
         method: 'POST',
@@ -46,14 +63,12 @@ const JobScraper = () => {
         },
         body: JSON.stringify({ url })
       });
-
       if (!response.ok) {
         console.error(`HTTP error! status: ${response.status}`);
         throw new Error(`Failed to fetch data: ${response.status}`);
       }
 
       const data = await response.json();
-      setJobData(data);
 
       // Initialize editable fields with fetched data
       setJobTitle(data.job_title || '');
@@ -64,12 +79,15 @@ const JobScraper = () => {
       setDescription(data.job_description || '');
       
       // Opens a modal to display our job data
+      setProgress(100);
       onOpen();
     } catch (error) {
       console.error("Error fetching job data:", error);
       setJobData(null);
+      setProgress(100);
     } finally {
       setLoading(false);
+      clearInterval(intervalId); // Stops the interval timer and prevents incrementing of progress when completed
     }
   };
 
@@ -92,17 +110,25 @@ const JobScraper = () => {
         value={url}
         onChange={handleUrlChange}
       />
-      <Box display="flex" alignItems="center">
-        <Button onClick={fetchJobData} isDisabled={loading}>
-          {loading ? "Please wait, loading job data" : "Fetch Job Data"}
+      <Box display="flex" alignItems="center" justifyContent="center" mt={4}>
+        <Button colorScheme="teal" onClick={fetchJobData} isDisabled={loading}>
+          {loading ? `Loading: ${progress}%` : "Fetch Job Data"}
         </Button>
-        {loading && <Spinner size="sm" ml={2} />}
+        {loading && (
+          <Progress
+            value={progress}
+            size="sm"
+            width="100px"
+            ml={4}
+            colorScheme="teal"
+          />
+        )}
       </Box>
-
+ 
       {/* Job Data Modal */}
       <Modal isOpen={isOpen} onClose={onClose}>
         <ModalOverlay />
-        <ModalContent maxWidth="1000px">
+        <ModalContent maxWidth="1000px" textAlign="center">
           <ModalHeader>Confirm Job Information</ModalHeader>
           <ModalCloseButton />
           <ModalBody>
@@ -142,7 +168,7 @@ const JobScraper = () => {
                 onChange={(e) => setState(e.target.value)} 
               />
             </FormControl>
-            
+
             {/* Salary */}
             <FormControl mt={4}>
               <FormLabel>Salary</FormLabel>
@@ -166,7 +192,7 @@ const JobScraper = () => {
 
           <ModalFooter>
             <Button colorScheme="blue" mr={3} onClick={handleConfirmation}>
-              Confirm
+              Save
             </Button>
             <Button variant="ghost" onClick={onClose}>Cancel</Button>
           </ModalFooter>
