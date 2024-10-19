@@ -1,30 +1,32 @@
 import React, { useState } from 'react';
 import {
   Box,
+  Input,
+  Button,
+  Modal,
+  ModalOverlay,
+  ModalContent,
+  ModalHeader,
+  ModalFooter,
+  ModalBody,
+  ModalCloseButton,
+  FormControl,
+  FormLabel,
+  useDisclosure,
+  Stack,
+  Text,
+  Textarea,
   Accordion,
   AccordionItem,
   AccordionButton,
   AccordionPanel,
   AccordionIcon,
-  Modal,
-  ModalOverlay,
-  ModalContent,
-  ModalHeader,
-  ModalCloseButton,
-  ModalBody,
-  ModalFooter,
-  Button,
-  FormLabel,
-  Input,
-  Text,
-  Textarea,
-  Stack,
-  useDisclosure,
 } from '@chakra-ui/react';
 
-function JobAccordion() {
+function JobAccordion({ savedJobs, setSavedJobs }) {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [isEditing, setIsEditing] = useState(false);
+  const [selectedJobIndex, setSelectedJobIndex] = useState(null);
   const [overlay, setOverlay] = useState(null);
 
   const OverlayTwo = () => (
@@ -36,206 +38,171 @@ function JobAccordion() {
     />
   );
 
-
-  const [jobDetails, setJobDetails] = useState({
-    title: 'Nexon-Full Stack GM',
-    company: 'Nexon',
-    url: 'www.nexon.com/careers/full_stack_GM',
-    appliedDate: '01/01/2025',
-    state: 'California',
-    salary: '$XXX,XXX',
-    requirements: 'HTML, CSS, React, Python, SQL, PostGres',
-    description: 'Lorem ipsum odor amet, consectetuer adipiscing elit...'
-  });
-
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setJobDetails({ ...jobDetails, [name]: value });
-  };
-
   const toggleEditMode = () => {
+    if (isEditing) {
+      onClose();
+    }
     setIsEditing(!isEditing);
   };
 
-// Job accordion
+  const handleEditClick = (index) => {
+    setSelectedJobIndex(index);
+    setIsEditing(true);
+    onOpen();
+  };
+
+  const handleDeleteJob = () => {
+    setSavedJobs((prevJobs) => prevJobs.filter((_, index) => index !== selectedJobIndex));
+    onClose();
+  }
+
   return (
-    <Box width="800px" maxWidth="800px" marginBottom="20px" mr={600}>
-      <Accordion fontFamily="Verdana" defaultIndex={[0]} allowMultiple>
-        <AccordionItem>
-          <h2>
-            <AccordionButton _expanded={{ bg: 'tomato', color: 'white' }} 
-            onClick={() => {
-              setOverlay(<OverlayTwo />);
-              onOpen();
-            }}
-            >
-              <Box as='span' flex='1' textAlign='left'>
-                {jobDetails.company}
-              </Box>
-              <AccordionIcon />
-            </AccordionButton>
-          </h2>
-          <AccordionPanel pb={4}></AccordionPanel>
-        </AccordionItem>
+    <Box width="800px" maxWidth="800px" marginBottom="20px">
+      <Accordion fontFamily="Verdana" allowMultiple>
+        {savedJobs && savedJobs.length > 0 ? (
+          savedJobs.map((job, index) => (
+            <AccordionItem key={index}>
+              <h2>
+                <AccordionButton 
+                  _expanded={{ bg: 'tomato', color: 'white' }} 
+                  onClick={() => {
+                    setSelectedJobIndex(index);
+                    onOpen();
+                  }}
+                >
+                  <Box as='span' flex='1' textAlign='left'>
+                    {job.company}
+                  </Box>
+                  <AccordionIcon />
+                </AccordionButton>
+              </h2>
+              <AccordionPanel pb={4}>
+              </AccordionPanel>
+            </AccordionItem>
+          ))
+        ) : (
+          <></>
+        )}
       </Accordion>
 
       {/* Modal that opens when job accordion is clicked */}
-<Modal isOpen={isOpen} onClose={onClose}>
-  {overlay}
-  <ModalContent>
-    <ModalHeader textAlign="center">{isEditing ? 'Edit Job Details' : 'Job Details'}</ModalHeader>
-    <ModalCloseButton />
+      <Modal isOpen={isOpen} onClose={onClose} size="lg">
+        {overlay}
+        <ModalContent maxWidth="900px">
+          <ModalHeader textAlign="center">{isEditing ? 'Edit Job Details' : 'Job Details'}</ModalHeader>
+          <ModalCloseButton />
 
-    <ModalBody>
-      <Stack spacing={4}>
-        {/* Job Title */}
-        <Box border={isEditing ? "5px solid tomato" : "5px solid teal"} p={4} borderRadius="md">
-          <FormLabel>Job Title:</FormLabel>
-          {isEditing ? (
-            <Input
-              name="title"
-              placeholder="Job Title"
-              value={jobDetails.title}
-              onChange={handleInputChange}
-            />
-          ) : (
-            <Text>{jobDetails.title}</Text>
-          )}
-        </Box>
+          <ModalBody>
+            <Stack spacing={4}>
+              {selectedJobIndex !== null && savedJobs[selectedJobIndex] && (
+                <>
+                  {/* Job Title */}
+                  <Box border={isEditing ? "5px solid tomato" : "5px solid teal"} p={4} borderRadius="md">
+                    <FormLabel>Job Title:</FormLabel>
+                    <Input
+                      name="title"
+                      placeholder="Job Title"
+                      value={isEditing ? savedJobs[selectedJobIndex].jobTitle : savedJobs[selectedJobIndex].jobTitle}
+                      onChange={(e) => {
+                        const newJobs = [...savedJobs];
+                        newJobs[selectedJobIndex].jobTitle = e.target.value;
+                        setSavedJobs(newJobs);
+                      }}
+                    />
+                  </Box>
 
-        {/* Company */}
-        <Box border={isEditing ? "5px solid tomato" : "5px solid teal"} p={4} borderRadius="md">
-          <FormLabel>Company:</FormLabel>
-          {isEditing ? (
-            <Input
-              name="company"
-              placeholder="Company"
-              value={jobDetails.company}
-              onChange={handleInputChange}
-            />
-          ) : (
-            <Text>{jobDetails.company}</Text>
-          )}
-        </Box>
+                  {/* Company */}
+                  <Box border={isEditing ? "5px solid tomato" : "5px solid teal"} p={4} borderRadius="md">
+                    <FormLabel>Company:</FormLabel>
+                    <Input
+                      name="company"
+                      placeholder="Company"
+                      value={isEditing ? savedJobs[selectedJobIndex].company : savedJobs[selectedJobIndex].company}
+                      onChange={(e) => {
+                        const newJobs = [...savedJobs];
+                        newJobs[selectedJobIndex].company = e.target.value;
+                        setSavedJobs(newJobs);
+                      }}
+                    />
+                  </Box>
 
-        {/* Job URL */}
-        <Box border={isEditing ? "5px solid tomato" : "5px solid teal"} p={4} borderRadius="md">
-          <FormLabel>Job URL:</FormLabel>
-          {isEditing ? (
-            <Input
-              name="url"
-              placeholder="Job URL"
-              value={jobDetails.url}
-              onChange={handleInputChange}
-            />
-          ) : (
-            <a href={jobDetails.url} target="_blank" rel="noopener noreferrer">
-              {jobDetails.url}
-            </a>
-          )}
-        </Box>
+                  {/* City */}
+                  <Box border={isEditing ? "5px solid tomato" : "5px solid teal"} p={4} borderRadius="md">
+                    <FormLabel>City:</FormLabel>
+                    <Input
+                      name="city"
+                      placeholder="City"
+                      value={isEditing ? savedJobs[selectedJobIndex].city : savedJobs[selectedJobIndex].city}
+                      onChange={(e) => {
+                        const newJobs = [...savedJobs];
+                        newJobs[selectedJobIndex].city = e.target.value;
+                        setSavedJobs(newJobs);
+                      }}
+                    />
+                  </Box>
 
-        {/* Applied Date */}
-        <Box border={isEditing ? "5px solid tomato" : "5px solid teal"} p={4} borderRadius="md">
-          <FormLabel>Applied Date:</FormLabel>
-          {isEditing ? (
-            <Input
-              name="appliedDate"
-              placeholder="Applied Date"
-              value={jobDetails.appliedDate}
-              onChange={handleInputChange}
-            />
-          ) : (
-            <Text>{jobDetails.appliedDate}</Text>
-          )}
-        </Box>
+                  {/* State */}
+                  <Box border={isEditing ? "5px solid tomato" : "5px solid teal"} p={4} borderRadius="md">
+                    <FormLabel>State:</FormLabel>
+                    <Input
+                      name="state"
+                      placeholder="State"
+                      value={isEditing ? savedJobs[selectedJobIndex].state : savedJobs[selectedJobIndex].state}
+                      onChange={(e) => {
+                        const newJobs = [...savedJobs];
+                        newJobs[selectedJobIndex].state = e.target.value;
+                        setSavedJobs(newJobs);
+                      }}
+                    />
+                  </Box>
 
-        {/* State */}
-        <Box border={isEditing ? "5px solid tomato" : "5px solid teal"} p={4} borderRadius="md">
-          <FormLabel>State:</FormLabel>
-          {isEditing ? (
-            <Input
-              name="state"
-              placeholder="State"
-              value={jobDetails.state}
-              onChange={handleInputChange}
-            />
-          ) : (
-            <Text>{jobDetails.state}</Text>
-          )}
-        </Box>
+                  {/* Salary */}
+                  <Box border={isEditing ? "5px solid tomato" : "5px solid teal"} p={4} borderRadius="md">
+                    <FormLabel>Salary:</FormLabel>
+                    <Input
+                      name="salary"
+                      placeholder="Salary"
+                      value={isEditing ? savedJobs[selectedJobIndex].salary : savedJobs[selectedJobIndex].salary}
+                      onChange={(e) => {
+                        const newJobs = [...savedJobs];
+                        newJobs[selectedJobIndex].salary = e.target.value;
+                        setSavedJobs(newJobs);
+                      }}
+                    />
+                  </Box>
 
-        {/* Salary */}
-        <Box border={isEditing ? "5px solid tomato" : "5px solid teal"} p={4} borderRadius="md">
-          <FormLabel>Salary:</FormLabel>
-          {isEditing ? (
-            <Input
-              name="salary"
-              placeholder="Salary"
-              value={jobDetails.salary}
-              onChange={handleInputChange}
-            />
-          ) : (
-            <Text>{jobDetails.salary}</Text>
-          )}
-        </Box>
-
-        {/* Requirements */}
-        <Box border={isEditing ? "5px solid tomato" : "5px solid teal"} p={4} borderRadius="md">
-          <FormLabel>Requirements:</FormLabel>
-          {isEditing ? (
-            <Input
-              name="requirements"
-              placeholder="Requirements"
-              value={jobDetails.requirements}
-              onChange={handleInputChange}
-            />
-          ) : (
-            <Text>{jobDetails.requirements}</Text>
-          )}
-        </Box>
-
-        {/* Description */}
-        <Box border={isEditing ? "5px solid tomato" : "5px solid teal"} p={4} borderRadius="md">
-          <FormLabel>Description:</FormLabel>
-          {isEditing ? (
-            <Textarea
-              name="description"
-              placeholder="Description"
-              value={jobDetails.description}
-              onChange={handleInputChange}
-            />
-          ) : (
-            <Text>{jobDetails.description}</Text>
-          )}
-        </Box>
-      </Stack>
-    </ModalBody>
+                  {/* Description */}
+                  <Box border={isEditing ? "5px solid tomato" : "5px solid teal"} p={4} borderRadius="md">
+                    <FormLabel>Description:</FormLabel>
+                    <Textarea
+                      height="500px"
+                      name="description"
+                      placeholder="Job Description"
+                      value={isEditing ? savedJobs[selectedJobIndex].description : savedJobs[selectedJobIndex].description}
+                      onChange={(e) => {
+                        const newJobs = [...savedJobs];
+                        newJobs[selectedJobIndex].description = e.target.value;
+                        setSavedJobs(newJobs);
+                      }}
+                    />
+                  </Box>
+                </>
+              )}
+            </Stack>
+          </ModalBody>
 
     <ModalFooter>
+      <Button colorScheme='red' onClick={handleDeleteJob} mr={3}>Delete Job</Button>
       {isEditing ? (
-        <>
-          <Button colorScheme='teal' onClick={toggleEditMode}>
-            Save Changes
-          </Button>
-          <Button variant='ghost' ml={3} onClick={toggleEditMode}>
-            Cancel
-          </Button>
-        </>
+        <Button colorScheme='teal' onClick={toggleEditMode}> Save Changes</Button>
       ) : (
-        <>
-          <Button variant='ghost' colorScheme='teal' onClick={toggleEditMode}>
-            Edit
-          </Button>
-          <Button colorScheme='blue' mr={3} onClick={onClose}>
-            Close
-          </Button>
-        </>
+        <Button variant='ghost' colorScheme='teal' onClick={toggleEditMode}>Edit</Button>
       )}
+      <Button colorScheme='blue' onClick={onClose}>Close</Button>
     </ModalFooter>
   </ModalContent>
 </Modal>
-</Box>
+    </Box>
   );
 }
 
