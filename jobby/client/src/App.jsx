@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import {
   Heading,
   Text,
@@ -12,6 +12,7 @@ import {
 import logo from './assets/Logo.svg';
 import JobScraper from './JobScraper';
 import JobAccordion from './JobAccordion';
+import JobFilter from './JobFilter';
 import './App.css';
 
 function App() {
@@ -55,28 +56,33 @@ function App() {
       
       {/* Job Scraper for testing */}
       <Stack fontFamily="Verdana" spacing={4} align="center" mb={20} width="100%">
-      <JobScraper align="center" />
+        <JobScraper align="center" />
       </Stack>
+      <Flex width="100%" justifyContent="center" alignItems="flex-start" mb={20}>
 
-      {/* Container for search field and accordion */}
-      <Flex width="100%" justifyContent="center" alignItems="center"> 
-        <Stack fontFamily="Verdana" spacing={4} align="center" width="300px" ml={100} mr={200}>
-          <Text fontSize='3xl' align="center" color='#008080'>Application Filter</Text>
-          <Input
-            placeholder="Company name"
-            size="md"
-            textAlign="center"
-          />
-          <Button colorScheme='teal' size='md'>
-            Search
-          </Button>
+        {/* Job Filter Component*/}
+        <Stack
+          fontFamily="Verdana"
+          spacing={4}
+          align="flex-start"
+          width="300px"
+          ml={4}
+        >
+          <JobFilter />
         </Stack>
 
-        <JobAccordion />
+        {/* Job Accordion Component*/}
+        <Stack
+          fontFamily="Verdana"
+          spacing={4}
+          align="center"
+          width="50%"
+          ml={250}
+        >
+          <JobAccordion />
+        </Stack>
       </Flex>
     </Flex>
-    
-
   );
 }
 
