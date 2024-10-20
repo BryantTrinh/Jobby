@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Box,
   Input,
@@ -41,12 +41,17 @@ const JobScraper = () => {
   const [salary, setSalary] = useState('');
   const [description, setDescription] = useState('');
 
-  // Created function to handle changes in URL input / Update URL state with user's input value
+    useEffect(() => {
+    const savedJobsFromStorage = localStorage.getItem('savedJobs');
+    if (savedJobsFromStorage) {
+      setSavedJobs(JSON.parse(savedJobsFromStorage));
+    }
+  }, []);
+  
   const handleUrlChange = (e) => {
     setUrl(e.target.value);
   };
 
-  // call fetchJobData, set loading to true, which means fetching operation in progress
   const fetchJobData = async () => {
     setLoading(true);
     // Percentage progress instead of a loading spinner. More visually appealing
@@ -100,20 +105,25 @@ const JobScraper = () => {
     }
   };
 
-  const handleConfirmation = () => {
-    const newJob = { jobTitle, company, city, state, salary, description };
-    setSavedJobs((prevJobs) => [...prevJobs, newJob]);
+const handleConfirmation = () => {
+  const newJob = { jobTitle, company, city, state, salary, description };
+  setSavedJobs((prevJobs) => {
+    const updatedJobs = [...prevJobs, newJob];
+    localStorage.setItem('savedJobs', JSON.stringify(updatedJobs));
+    return updatedJobs;
+  });
 
-    console.log("User confirms job data is correct:", {
-      jobTitle,
-      company,
-      city,
-      state,
-      salary,
-      description,
-    });
-    onClose();
-  };
+  console.log("User confirms job data is correct:", {
+    jobTitle,
+    company,
+    city,
+    state,
+    salary,
+    description,
+  });
+  onClose();
+};
+
 
   return (
     <Box>
