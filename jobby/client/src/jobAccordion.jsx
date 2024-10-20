@@ -56,31 +56,29 @@ function JobAccordion({ savedJobs, setSavedJobs }) {
     onClose();
   }
 
-  return (
-    <Box width="800px" maxWidth="800px" marginBottom="20px">
-      <Accordion fontFamily="Verdana" allowMultiple>
-        {savedJobs && savedJobs.length > 0 ? (
-          savedJobs.map((job, index) => (
-            <AccordionItem key={index}>
-              <h2>
-                <AccordionButton 
-                  _expanded={{ bg: 'tomato', color: 'white' }} 
-                  onClick={() => {
-                    setSelectedJobIndex(index);
-                    onOpen();
-                  }}
-                >
-                  <Box as='span' flex='1' textAlign='left'>
-                    {job.company}
-                  </Box>
-                  <AccordionIcon />
-                </AccordionButton>
-              </h2>
-              <AccordionPanel pb={4}>
-              </AccordionPanel>
-            </AccordionItem>
-          ))
-        ) : (
+return (
+  <Box width="800px" maxWidth="800px" mb="20px" mt="10">
+    <Accordion fontFamily="Verdana" allowMultiple>
+      {savedJobs && savedJobs.length > 0 ? (
+        savedJobs.map((job, index) => (
+          <AccordionItem key={index}>
+            <h2>
+              <AccordionButton 
+                _expanded={{ bg: 'tomato', color: 'white' }} 
+                onClick={() => {
+                  setSelectedJobIndex(index);
+                  onOpen();
+                }}
+              >
+                <Box as='span' flex='1' textAlign='left'>
+                  {job.company} : {job.jobTitle}
+                </Box>
+                <AccordionIcon />
+              </AccordionButton>
+            </h2>
+          </AccordionItem>
+        ))
+      ) : (
           <></>
         )}
       </Accordion>
