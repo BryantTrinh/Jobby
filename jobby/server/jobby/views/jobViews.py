@@ -3,7 +3,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from jobby.models import Job
 from jobby.serializer import JobSerializer
-
+import json
 
 
 # get all jobs in database
@@ -16,10 +16,43 @@ def job_view(request):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     elif request.method == 'POST':
-        data = get_data_from_body(request.body);
-        # return Response(status.HTTP_200_OK)
+        body = None
+        try:
+            body = get_data_from_body(request.body);
+        except Exception as e:
+            return Response({'message': f'Error invalid request: {e}'}, status=status.HTTP_400_BAD_REQUEST)
+        return Response(status.HTTP_200_OK)
+    
+        
 
 
 
 
-# def get
+def get_data_from_body(body):
+    data = None
+    try:
+        data = json.loads(body)
+    except json.JSONDecodeError as e:
+        raise Exception( f'Error parsing json - {e}')
+
+    if data == None:
+        raise Exception('No data found')
+    
+    print(data)
+    missingFields = []
+    # required fields: job title, company, url, state,
+    if 'job_title' not in data:
+        print('no job title')
+        missingFields.append('job_title')
+    if 'company' not in data:
+        print('no company')
+        missingFields.append('company')
+    if 'state' not in data:
+        print('no state')
+        missingFields.append('state')
+    if 'url' not in data:
+        print('no url')
+        missingFields.append('url')
+
+    if len(missingFields) > 0:
+        raise Exception(f'Following fields are missing in body: {', '.join(missingFields)}');
