@@ -1,10 +1,11 @@
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
-from jobby.models import Job
+from jobby.models import Job, State
 from jobby.serializer import JobSerializer
+from django.db.models import Q
 import json
-
+import datetime
 
 # get all jobs in database
 @api_view(['GET', 'POST'])
@@ -21,9 +22,34 @@ def job_view(request):
             body = get_data_from_body(request.body);
         except Exception as e:
             return Response({'message': f'Error invalid request: {e}'}, status=status.HTTP_400_BAD_REQUEST)
-        return Response(status.HTTP_200_OK)
-    
+        print(body.get('url'))
+        # check db by url
+        if Job.objects.filter(url=body.get('url')).exists():
+            return Response({'message': 'Job with this url already exists'}, status=status.HTTP_400_BAD_REQUEST)
+        stateObj = None
+        # get state object from db
+        stateObj = State.objects.get(Q(name__iexact=body.get('state')) | Q(abbrev__iexact=body.get('state')))
+        if stateObj == None:
+            return Response({'message': 'Invalid state name/abbrev'}, status=status.HTTP_400_BAD_REQUEST)
         
+
+        now = datetime.date.today()
+
+        # save to db
+
+        newJob = Job.objects.create(
+            title=body.get('job_title'), 
+            company = body.get('company'),
+            description = body.get('job_description'),
+            requirements = body.get('job_requirements'),
+            salary = body.get('salary'),
+            applied = now,
+            url = body.get('url'),
+            city = body.get('city'),
+            state = stateObj
+        )
+        serializer = JobSerializer(newJob)
+        return Response(serializer.data, status.HTTP_200_OK)
 
 
 
@@ -56,3 +82,11 @@ def get_data_from_body(body):
 
     if len(missingFields) > 0:
         raise Exception(f'Following fields are missing in body: {', '.join(missingFields)}');
+    return data
+
+# {
+#     "job_title": "title",
+#     "company": "comapny",
+#     "state": "CA",
+#     "url": "www.fakeurl.com"
+# }
