@@ -16,7 +16,7 @@ class Job(models.Model):
     requirements = models.TextField(null=True)
     salary = models.FloatField(null=True)
     applied = models.DateField(null=True)
-    url = models.TextField(null=False, blank=False, default=None)
+    url = models.TextField(null=False, blank=False, default=None, unique=True)
     state = models.ForeignKey(
         State,
         on_delete=models.CASCADE,
