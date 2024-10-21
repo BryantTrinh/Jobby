@@ -34,7 +34,12 @@ function App() {
         />
       </Stack>
 
-      <Stack fontFamily="Verdana" mb={10} align="center" mt={-100}>
+      <Stack 
+      fontFamily="Verdana" 
+      mb={10} 
+      align="center" 
+      mt={-100}
+      >
         <h2>
           <Text fontSize='3xl' color='#008080'>Job Documentation & Assistance</Text>
           <Text fontSize='3xl' color='#008080' align="center">Powered by AI</Text>
@@ -42,7 +47,12 @@ function App() {
       </Stack>
 
       {/* Save application field and save button */}
-      <Stack fontFamily="Verdana" spacing={4} align="center" mb={20} width="100%">
+      <Stack 
+      fontFamily="Verdana" 
+      spacing={4} align="center" 
+      mb={20} 
+      width="100%"
+      >
         <Input
           placeholder="Save application via entering in URL"
           size="md"
@@ -54,34 +64,45 @@ function App() {
         </Button>
       </Stack>
       
-      {/* Job Scraper for testing */}
-      <Stack fontFamily="Verdana" spacing={4} align="center" mb={20} width="100%">
-        <JobScraper align="center" />
+    <Flex 
+      width="100%" 
+      justifyContent="center" 
+      alignItems="flex-start" 
+      mb={20}>
+  
+      {/* Job Filter*/}
+      <Stack
+        fontFamily="Verdana"
+        spacing={4}
+        align="flex-start"
+        width="50px"
+        ml={4}
+      >
+        <JobFilter />
       </Stack>
-      <Flex width="100%" justifyContent="center" alignItems="flex-start" mb={20}>
 
-        {/* Job Filter Component*/}
-        <Stack
-          fontFamily="Verdana"
-          spacing={4}
-          align="flex-start"
-          width="300px"
-          ml={4}
-        >
-          <JobFilter />
-        </Stack>
+      {/* Job Scraper for testing */}
+      <Stack 
+      fontFamily="Verdana" 
+      spacing={4} 
+      align="center" 
+      width="100%"
+      maxWidth="1200px"
+    >
+        <JobScraper />
+      </Stack>
+    </Flex>
 
         {/* Job Accordion Component*/}
-        <Stack
-          fontFamily="Verdana"
-          spacing={4}
-          align="center"
-          width="50%"
-          ml={250}
-        >
-          <JobAccordion />
-        </Stack>
-      </Flex>
+      <Stack
+        fontFamily="Verdana"
+        spacing={4}
+        align="center"
+        width="50%"
+        ml={250}
+      >
+        <JobAccordion />
+      </Stack>
     </Flex>
   );
 }

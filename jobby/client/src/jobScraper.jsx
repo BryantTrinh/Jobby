@@ -41,28 +41,20 @@ const JobScraper = () => {
   const [salary, setSalary] = useState('');
   const [description, setDescription] = useState('');
 
-    useEffect(() => {
-    const savedJobsFromStorage = localStorage.getItem('savedJobs');
-    if (savedJobsFromStorage) {
-      setSavedJobs(JSON.parse(savedJobsFromStorage));
-    }
-  }, []);
-  
+
   const handleUrlChange = (e) => {
     setUrl(e.target.value);
   };
 
   const fetchJobData = async () => {
     setLoading(true);
-    // Percentage progress instead of a loading spinner. More visually appealing
     setProgress(0);
     let intervalId;
-    // setInterval is a JS function that repeatedly executes function at my specified time interval, every 190ms
-    // prevProgress is the current progress, if % is 95% or more, it returns prevProgress without incrementing
+
     intervalId = setInterval(() => {
       setProgress((prevProgress) => {
         if (prevProgress < 99) {
-          return prevProgress +1;
+          return prevProgress + 1;
         } else {
           return prevProgress;
         }
@@ -92,7 +84,6 @@ const JobScraper = () => {
       setSalary(data.salary || 'Not provided');
       setDescription(data.job_description || '');
       
-      // Opens a modal to display our job data
       setProgress(100);
       onOpen();
     } catch (error) {
@@ -101,29 +92,24 @@ const JobScraper = () => {
       setProgress(100);
     } finally {
       setLoading(false);
-      clearInterval(intervalId); // Stops the interval timer and prevents incrementing of progress when completed
+      clearInterval(intervalId);
     }
   };
 
-const handleConfirmation = () => {
-  const newJob = { jobTitle, company, city, state, salary, description };
-  setSavedJobs((prevJobs) => {
-    const updatedJobs = [...prevJobs, newJob];
-    localStorage.setItem('savedJobs', JSON.stringify(updatedJobs));
-    return updatedJobs;
-  });
+  const handleConfirmation = () => {
+    const newJob = { jobTitle, company, city, state, salary, description };
+    setSavedJobs((prevJobs) => [...prevJobs, newJob]);
 
-  console.log("User confirms job data is correct:", {
-    jobTitle,
-    company,
-    city,
-    state,
-    salary,
-    description,
-  });
-  onClose();
-};
-
+    console.log("User confirms job data is correct:", {
+      jobTitle,
+      company,
+      city,
+      state,
+      salary,
+      description,
+    });
+    onClose();
+  };
 
   return (
     <Box>
@@ -146,7 +132,7 @@ const handleConfirmation = () => {
           />
         )}
       </Box>
- 
+
       {/* Job Data Modal */}
       <Modal isOpen={isOpen} onClose={onClose}>
         <ModalOverlay />
@@ -221,7 +207,7 @@ const handleConfirmation = () => {
         </ModalContent>
       </Modal>
       
-    <JobAccordion savedJobs={savedJobs} setSavedJobs={setSavedJobs} />
+      <JobAccordion savedJobs={savedJobs} setSavedJobs={setSavedJobs} />
 
     </Box>
   );
