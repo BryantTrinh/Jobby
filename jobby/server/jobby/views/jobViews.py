@@ -15,11 +15,34 @@ import datetime
 def job_view(request):
 
     if request.method == 'GET':
-        jobs = Job.objects.all()
-
         # Get query parameters
+        query = Q()
+
+        job_title = request.GET.get(REQUEST_PARAMS['JOB_TITLE'], None)
+        state = request.GET.get(REQUEST_PARAMS['STATE'], None)
+        company = request.GET.get(REQUEST_PARAMS['COMPANY'], None)
+        city = request.GET.get(REQUEST_PARAMS['CITY'], None)
+
+        if job_title:
+            query &= Q(title__icontains=job_title)
+        if state:
+            query &= (Q(state__name__iexact=state) | Q(state__abbrev__iexact=state))
+        if company:
+            query &= Q(company__icontains=company)
+        if city:
+            query &= Q(city__icontains=city)
+
+        order_by = request.GET.get(REQUEST_PARAMS['ORDER_BY'], 'desc')
+        # default sort by is applied date
+        sort_by = request.GET.get(REQUEST_PARAMS['SORT_BY'], 'applied')
+
+        jobs = Job.objects.filter(query).order_by(sort_by if order_by == 'asc' else '-' + sort_by)
+
+        
+        # set pagination paramers
         page_size = request.GET.get(REQUEST_PARAMS['PAGE_SIZE'], 10)
         page_index = request.GET.get(REQUEST_PARAMS['PAGE_INDEX'], 1)
+        
         paginator = Paginator(jobs, page_size)
 
         try:
@@ -28,15 +51,17 @@ def job_view(request):
             page = paginator.page(1)
         except EmptyPage:
             page = paginator.page(paginator.num_pages)
-        print(page_index)
+
         serializer = JobSerializer(page, many=True)
 
         paginatonResponse = {
-            'data': serializer.data,
             'page_index': page.number,
             'page_size': int(page_size),
-            'total_elements': len(page.object_list),
-            'total_pages': paginator.num_pages
+            'total_elements': paginator.count,
+            'total_pages': paginator.num_pages,
+            'sort_by': sort_by,
+            'order_by': order_by,
+            'data': serializer.data,
         }
         return Response(paginatonResponse, status=status.HTTP_200_OK)
         # return Response(serializer.data, status=status.HTTP_200_OK)
@@ -108,10 +133,3 @@ def get_data_from_body(body):
     if len(missingFields) > 0:
         raise Exception(f'Following fields are missing in body: {', '.join(missingFields)}');
     return data
-
-# {
-#     "job_title": "title",
-#     "company": "comapny",
-#     "state": "CA",
-#     "url": "www.fakeurl.com"
-# }
