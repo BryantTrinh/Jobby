@@ -4,6 +4,9 @@ from rest_framework import status
 from jobby.models import Job, State
 from jobby.serializer import JobSerializer
 from django.db.models import Q
+from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
+from ..constants import REQUEST_PARAMS
+from django.shortcuts import render
 import json
 import datetime
 
@@ -13,8 +16,30 @@ def job_view(request):
 
     if request.method == 'GET':
         jobs = Job.objects.all()
-        serializer = JobSerializer(jobs, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+
+        # Get query parameters
+        page_size = request.GET.get(REQUEST_PARAMS['PAGE_SIZE'], 10)
+        page_index = request.GET.get(REQUEST_PARAMS['PAGE_INDEX'], 1)
+        paginator = Paginator(jobs, page_size)
+
+        try:
+            page = paginator.get_page(page_index)
+        except PageNotAnInteger:
+            page = paginator.page(1)
+        except EmptyPage:
+            page = paginator.page(paginator.num_pages)
+        print(page_index)
+        serializer = JobSerializer(page, many=True)
+
+        paginatonResponse = {
+            'data': serializer.data,
+            'page_index': page.number,
+            'page_size': int(page_size),
+            'total_elements': len(page.object_list),
+            'total_pages': paginator.num_pages
+        }
+        return Response(paginatonResponse, status=status.HTTP_200_OK)
+        # return Response(serializer.data, status=status.HTTP_200_OK)
 
     elif request.method == 'POST':
         body = None
