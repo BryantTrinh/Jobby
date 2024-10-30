@@ -76,7 +76,7 @@ const JobScraper = () => {
 
       const data = await response.json();
 
-      // Initialize editable fields with fetched data
+
       setJobTitle(data.job_title || '');
       setCompany(data.company || '');
       setCity(data.city || '');
@@ -96,20 +96,42 @@ const JobScraper = () => {
     }
   };
 
-  const handleConfirmation = () => {
-    const newJob = { jobTitle, company, city, state, salary, description };
-    setSavedJobs((prevJobs) => [...prevJobs, newJob]);
+const handleConfirmation = async () => {
+    const newJob = { 
+        job_title: jobTitle, 
+        company: company, 
+        city: city, 
+        state: state, 
+        salary: salary, 
+        job_description: description,
+        url: url
+    };
 
-    console.log("User confirms job data is correct:", {
-      jobTitle,
-      company,
-      city,
-      state,
-      salary,
-      description,
-    });
+    try {
+        const response = await fetch('http://127.0.0.1:8000/api/jobs/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(newJob),
+        });
+
+        if (!response.ok) {
+            throw new Error(`Error saving job: ${response.statusText}`);
+        }
+
+        const savedJob = await response.json();
+        console.log("Job saved successfully:", savedJob);
+        
+
+        setSavedJobs((prevJobs) => [...prevJobs, savedJob]);
+        
+    } catch (error) {
+        console.error("Error saving job data:", error);
+    }
+
     onClose();
-  };
+};
 
   return (
     <Box>
