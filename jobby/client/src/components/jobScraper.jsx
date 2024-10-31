@@ -23,7 +23,7 @@ import {
   Stack,
   Text,
 } from "@chakra-ui/react";
-import JobAccordion from './JobAccordion';
+import JobAccordion from './jobAccordion';
 
 const JobScraper = () => {
   const [url, setUrl] = useState('');
@@ -75,7 +75,8 @@ const JobScraper = () => {
       }
 
       const data = await response.json();
-
+      
+      console.log("Fetched job data:", data);
 
       setJobTitle(data.job_title || '');
       setCompany(data.company || '');

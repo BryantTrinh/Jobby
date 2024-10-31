@@ -6,12 +6,11 @@ import {
   Input, 
   Button,
   Select
-  } 
-  from "@chakra-ui/react";
+} from "@chakra-ui/react";
 
 const JobFilter = ({ savedJobs, onFilter }) => {
-const [filterOption, setFilterOption] = useState(' ');
-const [filterValue, setFilterValue] = useState(' ');
+  const [filterOption, setFilterOption] = useState('');
+  const [filterValue, setFilterValue] = useState('');
 
   const handleFilter = () => {
     const filteredJobs = savedJobs.filter(job => {
@@ -29,10 +28,15 @@ const [filterValue, setFilterValue] = useState(' ');
     onFilter(filteredJobs); 
   };
 
-
- return (
+  return (
     <Flex width="100%" justifyContent="center" alignItems="center"> 
-      <Stack fontFamily="Verdana" spacing={4} align="center" width="300px" ml={100} mr={200}>
+      <Stack 
+        fontFamily="Verdana" 
+        spacing={4} 
+        align="center" 
+        width="100%"
+        maxWidth="600px" 
+      >
         <Text fontSize='3xl' align="center" color='#008080'>Application Filter</Text>
 
         {/* Dropdown Menu */}
@@ -44,7 +48,7 @@ const [filterValue, setFilterValue] = useState(' ');
             setFilterValue('');
           }}
           textAlign="center"
-          width="200%"
+          width="100%"
         >
           <option value="Company">Company</option>
           <option value="City">City</option>
@@ -57,7 +61,7 @@ const [filterValue, setFilterValue] = useState(' ');
             placeholder={`Enter ${filterOption}`}
             size="md"
             textAlign="center"
-            width="200%"
+            width="100%"
             value={filterValue}
             onChange={(e) => setFilterValue(e.target.value)}
           />
