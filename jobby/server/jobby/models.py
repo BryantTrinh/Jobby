@@ -14,7 +14,8 @@ class Job(models.Model):
     company = models.CharField(max_length=255, null=False, blank=False)
     description = models.TextField(null=True)
     requirements = models.TextField(null=True)
-    salary = models.FloatField(null=True)
+    salary_start = models.FloatField(null=True, default=None);
+    salary_end = models.FloatField(null=True, default=None);
     applied = models.DateField(null=True)
     url = models.TextField(null=False, blank=False, default=None, unique=True)
     state = models.ForeignKey(
