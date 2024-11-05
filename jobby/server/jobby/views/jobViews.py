@@ -91,6 +91,7 @@ def job_view(request):
             salary_end = float(salary_end)
         except ValueError as e:
             return Response({'message': 'Invalid salary start/end values - ' + e}, status=status.HTTP_400_BAD_REQUEST)
+        
         now = datetime.date.today()
 
         # save to db
@@ -99,7 +100,7 @@ def job_view(request):
             title=body.get('job_title'), 
             company = body.get('company'),
             description = body.get('job_description'),
-            requirements = body.get('job_requirements'),
+            requirements = '\n'.join(body.get('job_requirements')),
             salary_start = salary_start,
             salary_end = salary_end,
             payment_type = body.get('payment_type'),
