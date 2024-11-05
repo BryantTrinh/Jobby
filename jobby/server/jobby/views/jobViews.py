@@ -82,7 +82,7 @@ def job_view(request):
         if stateObj == None:
             return Response({'message': 'Invalid state name/abbrev'}, status=status.HTTP_400_BAD_REQUEST)
         
-        if body.get('payment_type') != 'hourly' or body.get('payment_type') != 'yearly':
+        if body.get('payment_type') != 'hourly' and body.get('payment_type') != 'yearly':
             return Response({'message': 'Invalid payment type - hourly or salary only'}, status=status.HTTP_400_BAD_REQUEST)
         
         now = datetime.date.today()
