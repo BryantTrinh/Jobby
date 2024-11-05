@@ -72,7 +72,6 @@ def job_view(request):
             body = get_data_from_body(request.body);
         except Exception as e:
             return Response({'message': f'Error invalid request: {e}'}, status=status.HTTP_400_BAD_REQUEST)
-        print(body.get('url'))
         # check db by url
         if Job.objects.filter(url=body.get('url')).exists():
             return Response({'message': 'Job with this url already exists'}, status=status.HTTP_400_BAD_REQUEST)
@@ -85,6 +84,13 @@ def job_view(request):
         if body.get('payment_type') != 'hourly' and body.get('payment_type') != 'yearly':
             return Response({'message': 'Invalid payment type - hourly or salary only'}, status=status.HTTP_400_BAD_REQUEST)
         
+        salary_start = body.get('salary_start').replace(',', '')
+        salary_end = body.get('salary_end').replace(',', '')
+        try:
+            salary_start = float(salary_start)
+            salary_end = float(salary_end)
+        except ValueError as e:
+            return Response({'message': 'Invalid salary start/end values - ' + e}, status=status.HTTP_400_BAD_REQUEST)
         now = datetime.date.today()
 
         # save to db
@@ -94,8 +100,8 @@ def job_view(request):
             company = body.get('company'),
             description = body.get('job_description'),
             requirements = body.get('job_requirements'),
-            salary_start = body.get('salary_start'),
-            salary_end = body.get('salary_end'),
+            salary_start = salary_start,
+            salary_end = salary_end,
             payment_type = body.get('payment_type'),
             applied = now,
             url = body.get('url'),
@@ -118,20 +124,15 @@ def get_data_from_body(body):
     if data == None:
         raise Exception('No data found')
     
-    print(data)
     missingFields = []
     # required fields: job title, company, url, state,
     if 'job_title' not in data:
-        print('no job title')
         missingFields.append('job_title')
     if 'company' not in data:
-        print('no company')
         missingFields.append('company')
     if 'state' not in data:
-        print('no state')
         missingFields.append('state')
     if 'url' not in data:
-        print('no url')
         missingFields.append('url')
 
     if len(missingFields) > 0:
