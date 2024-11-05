@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Select, Text, Flex } from "@chakra-ui/react";
+import { Select, Text, Flex, Stack } from "@chakra-ui/react";
 import JobAccordion from '../components/jobAccordion';
 import Pagination from '../components/pagination';
 
@@ -10,7 +10,6 @@ function SavedJobs() {
   const [totalPages, setTotalPages] = useState(0);
   const [totalJobs, setTotalJobs] = useState(0);
 
-
   useEffect(() => {
     const fetchSavedJobs = async () => {
       try {
@@ -18,7 +17,7 @@ function SavedJobs() {
         const data = await response.json();
         console.log(data);
 
-        // Set the saved jobs and total jobs based off our api
+        // Set the saved jobs and total jobs based on our API
         setSavedJobs(data.data || []); // Setting an empty array if data.data is undefined
         setTotalJobs(data.total_elements || 0);
 
@@ -43,6 +42,17 @@ function SavedJobs() {
 
   return (
     <Flex direction="column" align="center" p={4}>
+      <Stack 
+        fontFamily="Verdana" 
+        mb={10} 
+        align="center"
+      >
+        <h2>
+          <Text fontSize='3xl' color='#008080'>Job Documentation & Assistance</Text>
+          <Text fontSize='3xl' color='#008080' align="center">Powered by AI</Text>
+        </h2>
+      </Stack>
+
       <Text fontSize="3xl" color="#008080" mb={4}>
         Saved Jobs
       </Text>

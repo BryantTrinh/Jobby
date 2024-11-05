@@ -36,6 +36,7 @@ const JobFilter = ({ savedJobs, onFilter }) => {
         align="center" 
         width="100%"
         maxWidth="600px" 
+        mt={10}
       >
         <Text fontSize='3xl' align="center" color='#008080'>Application Filter</Text>
 

@@ -64,6 +64,15 @@ function App() {
         mx="auto"
         width="100vw"
       >
+        <Link to="/">
+        <Button 
+          variant="ghost"
+          color="white"
+          _hover={{ backgroundColor: 'teal.600' }}
+          >
+            Home
+            </Button>
+      </Link>
         <Link to="/jobby/savedJobs">
           <Button 
             variant="ghost" 
@@ -81,16 +90,6 @@ function App() {
             _hover={{ backgroundColor: 'teal.600' }}
           >
             Search Through Jobs
-          </Button>
-        </Link>
-
-        <Link to="/jobby/jobDetails">
-          <Button 
-            variant="ghost" 
-            color="white" 
-            _hover={{ backgroundColor: 'teal.600' }}
-          >
-            In Depth Job Details
           </Button>
         </Link>
       </Flex>
