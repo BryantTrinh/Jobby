@@ -61,12 +61,11 @@ const JobScraper = () => {
   };
 
   // REGEX for fetch job data. Want to make sure we enter a valid indeed link before being able to press Fetch
-const isValidUrl = (urlString) => {
-  const urlPattern = /^(https?:\/\/)?(www\.)?indeed\.com\/jobs\?q=[^&]+&l=[^&]+(&[^&]*)*$/;
-  const baseUrlPattern = /^(https?:\/\/)?(www\.)?indeed\.com\/?$/;
-  return urlPattern.test(urlString) || baseUrlPattern.test(urlString);
-};
-
+  const isValidUrl = (urlString) => {
+    const urlPattern = /^(https?:\/\/)?(www\.)?indeed\.com\/jobs\?q=[^&]+&l=[^&]+(&[^&]*)*$/;
+    const baseUrlPattern = /^(https?:\/\/)?(www\.)?indeed\.com\/?$/;
+    return urlPattern.test(urlString) || baseUrlPattern.test(urlString);
+  };
 
   const fetchJobData = async () => {
     setLoading(true);
@@ -84,7 +83,7 @@ const isValidUrl = (urlString) => {
     }, 190);
 
     try {
-      const response = await fetch(http://127.0.0.1:8000/api/scrape/?url=${encodeURIComponent(url)}, {
+      const response = await fetch(`http://127.0.0.1:8000/api/scrape/?url=${encodeURIComponent(url)}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -92,8 +91,8 @@ const isValidUrl = (urlString) => {
         body: JSON.stringify({ url })
       });
       if (!response.ok) {
-        console.error(HTTP error! status: ${response.status});
-        throw new Error(Failed to fetch data: ${response.status});
+        console.error(`HTTP error! status: ${response.status}`);
+        throw new Error(`Failed to fetch data: ${response.status}`);
       }
 
       const data = await response.json();
@@ -122,176 +121,174 @@ const isValidUrl = (urlString) => {
     }
   };
 
-const handleConfirmation = async () => {
+  const handleConfirmation = async () => {
+    const newJob = {
+      job_title: jobTitle,
+      company: company,
+      description: jobDescription,
+      requirements: jobRequirements,
+      payment_type: paymentType,
+      salary_start: parseFloat(salaryStart),
+      salary_end: parseFloat(salaryEnd),
+      url: url,
+      city: city,
+      state: selectedState,
+    };
 
-  const newJob = {
-    job_title: jobTitle,
-    company: company,
-    description: jobDescription,
-    requirements: jobRequirements,
-    payment_type: paymentType,
-    salary_start: parseFloat(salaryStart),
-    salary_end: parseFloat(salaryEnd),
-    url: url,
-    city: city,
-    state: selectedState,
-  };
+    console.log("New Job to save:", newJob);
 
-  console.log("New Job to save:", newJob);
+    try {
+      const response = await fetch('http://127.0.0.1:8000/api/jobs/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(newJob),
+      });
 
-  try {
-    const response = await fetch('http://127.0.0.1:8000/api/jobs/', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(newJob),
-    });
+      if (!response.ok) {
+        const errorResponse = await response.json();
+        console.error("Error saving job:", errorResponse);
+        throw new Error(`Error saving job: ${response.statusText}`);
+      }
 
-    if (!response.ok) {
-      const errorResponse = await response.json();
-      console.error("Error saving job:", errorResponse);
-      throw new Error(Error saving job: ${response.statusText});
+      const savedJob = await response.json();
+      console.log("Job saved successfully:", savedJob);
+
+      setSavedJobs((prevJobs) => [...prevJobs, savedJob]);
+    } catch (error) {
+      console.error("Error saving job data:", error);
     }
 
-    const savedJob = await response.json();
-    console.log("Job saved successfully:", savedJob);
-
-    setSavedJobs((prevJobs) => [...prevJobs, savedJob]);
-  } catch (error) {
-    console.error("Error saving job data:", error);
-  }
-
-  onClose();
-};
+    onClose();
+  };
 
   return (
-  <Box>
-    <Input
-      placeholder="Enter job listing URL"
-      value={url}
-      onChange={handleUrlChange}
-    />
-    <Box display="flex" alignItems="center" justifyContent="center" mt={4}>
-      <Button 
-        colorScheme="teal" 
-        onClick={fetchJobData} 
-        isDisabled={loading || !isValidUrl(url)}
-      >
-        {loading ? Loading: ${progress}% : "Fetch Job Data"}
-      </Button>
-      {loading && (
-        <Progress
-          value={progress}
-          size="sm"
-          width="100px"
-          ml={4}
-          colorScheme="teal"
-        />
-      )}
-    </Box>
+    <Box>
+      <Input
+        placeholder="Enter job listing URL"
+        value={url}
+        onChange={handleUrlChange}
+      />
+      <Box display="flex" alignItems="center" justifyContent="center" mt={4}>
+        <Button 
+          colorScheme="teal" 
+          onClick={fetchJobData} 
+          isDisabled={loading || !isValidUrl(url)}
+        >
+          {loading ? `Loading: ${progress}%` : "Fetch Job Data"}
+        </Button>
+        {loading && (
+          <Progress
+            value={progress}
+            size="sm"
+            width="100px"
+            ml={4}
+            colorScheme="teal"
+          />
+        )}
+      </Box>
 
       {/* Job Data Modal */}
-<Modal isOpen={isOpen} onClose={onClose}>
-  <ModalOverlay />
-  <ModalContent maxWidth="1000px" textAlign="center">
-    <ModalHeader>Confirm Job Information</ModalHeader>
-    <ModalCloseButton />
-    <ModalBody>
-      {/* Form controls for job data */}
-      <FormControl>
-        <FormLabel>Job Title</FormLabel>
-        <Input 
-          value={jobTitle} 
-          onChange={(e) => setJobTitle(e.target.value)} 
-        />
-      </FormControl>
-      <FormControl mt={4}>
-        <FormLabel>Company</FormLabel>
-        <Input 
-          value={company} 
-          onChange={(e) => setCompany(e.target.value)} 
-        />
-      </FormControl>
-      <FormControl mt={4}>
-        <FormLabel>City</FormLabel>
-        <Input 
-          value={city} 
-          onChange={(e) => setCity(e.target.value)} 
-        />
-      </FormControl>
+      <Modal isOpen={isOpen} onClose={onClose}>
+        <ModalOverlay />
+        <ModalContent maxWidth="1000px" textAlign="center">
+          <ModalHeader>Confirm Job Information</ModalHeader>
+          <ModalCloseButton />
+          <ModalBody>
+            {/* Form controls for job data */}
+            <FormControl>
+              <FormLabel>Job Title</FormLabel>
+              <Input 
+                value={jobTitle} 
+                onChange={(e) => setJobTitle(e.target.value)} 
+              />
+            </FormControl>
+            <FormControl mt={4}>
+              <FormLabel>Company</FormLabel>
+              <Input 
+                value={company} 
+                onChange={(e) => setCompany(e.target.value)} 
+              />
+            </FormControl>
+            <FormControl mt={4}>
+              <FormLabel>City</FormLabel>
+              <Input 
+                value={city} 
+                onChange={(e) => setCity(e.target.value)} 
+              />
+            </FormControl>
 
-      {/* Remove the state dropdown */}
-      <FormControl mt={4}>
-        <FormLabel>State</FormLabel>
-        <Input 
-          value={selectedState} 
-          readOnly 
-        />
-      </FormControl>
+            {/* Remove the state dropdown */}
+            <FormControl mt={4}>
+              <FormLabel>State</FormLabel>
+              <Input 
+                value={selectedState} 
+                readOnly 
+              />
+            </FormControl>
 
-      <FormControl mt={4}>
-        <FormLabel>Salary Start</FormLabel>
-        <Input 
-          value={salaryStart} 
-          onChange={(e) => setSalaryStart(e.target.value)} 
-        />
-      </FormControl>
-      <FormControl mt={4}>
-        <FormLabel>Salary End</FormLabel>
-        <Input 
-          value={salaryEnd} 
-          onChange={(e) => setSalaryEnd(e.target.value)} 
-        />
-      </FormControl>
-      <FormControl mt={4}>
-        <FormLabel>Job Description</FormLabel>
-        <Textarea 
-          value={jobDescription} 
-          onChange={(e) => setJobDescription(e.target.value)} 
-        />
-      </FormControl>
-      <FormControl mt={4}>
-        <FormLabel>Payment Type</FormLabel>
-        <Input 
-          value={paymentType} 
-          onChange={(e) => setPaymentType(e.target.value)} 
-        />
-      </FormControl>
-      <FormControl mt={4}>
-        <FormLabel>Job Requirements</FormLabel>
-        <Textarea 
-          value={jobRequirements} 
-          onChange={(e) => setJobRequirements(e.target.value)} 
-        />
-      </FormControl>
-    </ModalBody>
-    <ModalFooter>
-      <Button variant="ghost" onClick={onClose}>
-        Cancel
-      </Button>
-      <Button colorScheme="teal" onClick={handleConfirmation}>
-        Save Job
-      </Button>
-    </ModalFooter>
-  </ModalContent>
-</Modal>
+            <FormControl mt={4}>
+              <FormLabel>Salary Start</FormLabel>
+              <Input 
+                value={salaryStart} 
+                onChange={(e) => setSalaryStart(e.target.value)} 
+              />
+            </FormControl>
+            <FormControl mt={4}>
+              <FormLabel>Salary End</FormLabel>
+              <Input 
+                value={salaryEnd} 
+                onChange={(e) => setSalaryEnd(e.target.value)} 
+              />
+            </FormControl>
+            <FormControl mt={4}>
+              <FormLabel>Job Description</FormLabel>
+              <Textarea 
+                value={jobDescription} 
+                onChange={(e) => setJobDescription(e.target.value)} 
+              />
+            </FormControl>
+            <FormControl mt={4}>
+              <FormLabel>Payment Type</FormLabel>
+              <Input 
+                value={paymentType} 
+                onChange={(e) => setPaymentType(e.target.value)} 
+              />
+            </FormControl>
+            <FormControl mt={4}>
+              <FormLabel>Job Requirements</FormLabel>
+              <Textarea 
+                value={jobRequirements} 
+                onChange={(e) => setJobRequirements(e.target.value)} 
+              />
+            </FormControl>
+          </ModalBody>
+          <ModalFooter>
+            <Button variant="ghost" onClick={onClose}>
+              Cancel
+            </Button>
+            <Button colorScheme="teal" onClick={handleConfirmation}>
+              Save Job
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
 
       <Accordion allowToggle>
         {savedJobs.map((job, index) => (
           <AccordionItem key={job.id || index}>
             <AccordionButton>
               <Box flex="1" textAlign="left">
-                {job.job_title} - {job.company}
+                {job.job_title} at {job.company}
               </Box>
               <AccordionIcon />
             </AccordionButton>
             <AccordionPanel pb={4}>
-              <Text>Description: {job.job_description}</Text>
-              <Text>Requirements: {job.job_requirements}</Text>
-              <Text>Salary: {job.salary_start} - {job.salary_end}</Text>
-              <Text>Payment Type: {job.payment_type}</Text>
-              <Text>URL: {job.url}</Text>
+              <Stack>
+                <Text>Job Description: {job.description}</Text>
+                <Text>Location: {job.city}, {job.state}</Text>
+              </Stack>
             </AccordionPanel>
           </AccordionItem>
         ))}
