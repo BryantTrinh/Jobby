@@ -37,7 +37,7 @@ const JobScraper = () => {
   const [salaryStart, setSalaryStart] = useState('');
   const [salaryEnd, setSalaryEnd] = useState('');
   const [paymentType, setPaymentType] = useState('');
-  const [jobRequirements, setJobRequirements] = useState('');
+  const [jobRequirements, setJobRequirements] = useState([]);
   const [states, setStates] = useState([]);
   const [selectedState, setSelectedState] = useState('');
   const [url, setUrl] = useState('');
@@ -105,7 +105,7 @@ const JobScraper = () => {
       setSalaryStart(data.salary_start || 'Not provided');
       setSalaryEnd(data.salary_end || 'Not provided');
       setPaymentType(data.payment_type || 'Not provided');
-      setJobRequirements(data.job_requirements || '');
+      setJobRequirements(Array.isArray(data.job_requirements) ? data.job_requirements : []);
       setSelectedState(data.state || '');
       setUrl(data.url || '');
 
@@ -121,47 +121,55 @@ const JobScraper = () => {
     }
   };
 
-  const handleConfirmation = async () => {
-    const newJob = {
-      job_title: jobTitle,
-      company: company,
-      description: jobDescription,
-      requirements: jobRequirements,
-      payment_type: paymentType,
-      salary_start: parseFloat(salaryStart),
-      salary_end: parseFloat(salaryEnd),
-      url: url,
-      city: city,
-      state: selectedState,
-    };
+const handleConfirmation = async () => {
 
-    console.log("New Job to save:", newJob);
+  const selectedStateObj = states.find(
+    (state) => state.name === selectedState || state.abbrev === selectedState
+  );
+  const stateId = selectedStateObj ? selectedStateObj.id : null;
 
-    try {
-      const response = await fetch('http://127.0.0.1:8000/api/jobs/', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(newJob),
-      });
 
-      if (!response.ok) {
-        const errorResponse = await response.json();
-        console.error("Error saving job:", errorResponse);
-        throw new Error(`Error saving job: ${response.statusText}`);
-      }
+  const newJob = {
+    job_title: jobTitle,
+    company: company,
+    job_description: jobDescription,
+    job_requirements: jobRequirements,
+    payment_type: paymentType,
+    salary_start: parseInt(salaryStart) || null,
+    salary_end: parseInt(salaryEnd) || null,
+    url: url,
+    city: city,
+    state: stateId || 'CA',
+  };
 
-      const savedJob = await response.json();
-      console.log("Job saved successfully:", savedJob);
+  console.log("New Job to save:", newJob);
 
-      setSavedJobs((prevJobs) => [...prevJobs, savedJob]);
-    } catch (error) {
-      console.error("Error saving job data:", error);
+  try {
+    const response = await fetch('http://127.0.0.1:8000/api/jobs/', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(newJob),
+    });
+
+    if (!response.ok) {
+      const errorResponse = await response.json();
+      console.error("Error saving job:", errorResponse);
+      throw new Error(`Error saving job: ${response.statusText}`);
     }
 
-    onClose();
-  };
+    const savedJob = await response.json();
+    console.log("Job saved successfully:", savedJob);
+
+    setSavedJobs((prevJobs) => [...prevJobs, savedJob]);
+  } catch (error) {
+    console.error("Error saving job data:", error);
+  }
+
+  onClose();
+};
+
 
   return (
     <Box>
@@ -259,8 +267,11 @@ const JobScraper = () => {
             <FormControl mt={4}>
               <FormLabel>Job Requirements</FormLabel>
               <Textarea 
-                value={jobRequirements} 
-                onChange={(e) => setJobRequirements(e.target.value)} 
+                value={jobRequirements.join('\n')}
+                onChange={(e) => {
+                  const requirements = e.target.value.split('\n').map(item => item.trim()).filter(item => item);
+                  setJobRequirements(requirements);
+                }}
               />
             </FormControl>
           </ModalBody>
