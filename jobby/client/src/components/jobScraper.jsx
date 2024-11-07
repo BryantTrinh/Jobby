@@ -27,7 +27,6 @@ import {
 const JobScraper = () => {
   const [jobData, setJobData] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [progress, setProgress] = useState(0);
   const [savedJobs, setSavedJobs] = useState([]);
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [jobTitle, setJobTitle] = useState('');
@@ -52,7 +51,6 @@ const JobScraper = () => {
         console.error("Error fetching states:", error);
       }
     };
-
     fetchStates();
   }, []);
 
@@ -60,7 +58,6 @@ const JobScraper = () => {
     setUrl(e.target.value);
   };
 
-  // REGEX for fetch job data. Want to make sure we enter a valid indeed link before being able to press Fetch
   const isValidUrl = (urlString) => {
     const urlPattern = /^(https?:\/\/)?(www\.)?indeed\.com\/jobs\?q=[^&]+&l=[^&]+(&[^&]*)*$/;
     const baseUrlPattern = /^(https?:\/\/)?(www\.)?indeed\.com\/?$/;
@@ -69,35 +66,15 @@ const JobScraper = () => {
 
   const fetchJobData = async () => {
     setLoading(true);
-    setProgress(0);
-    let intervalId;
-
-    intervalId = setInterval(() => {
-      setProgress((prevProgress) => {
-        if (prevProgress < 99) {
-          return prevProgress + 1;
-        } else {
-          return prevProgress;
-        }
-      });
-    }, 190);
-
     try {
       const response = await fetch(`http://127.0.0.1:8000/api/scrape/?url=${encodeURIComponent(url)}`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ url })
       });
-      if (!response.ok) {
-        console.error(`HTTP error! status: ${response.status}`);
-        throw new Error(`Failed to fetch data: ${response.status}`);
-      }
+      if (!response.ok) throw new Error(`Failed to fetch data: ${response.status}`);
 
       const data = await response.json();
-      console.log("Fetched job data:", data);
-
       setJobTitle(data.job_title || '');
       setCompany(data.company || '');
       setJobDescription(data.job_description || '');
@@ -109,67 +86,51 @@ const JobScraper = () => {
       setSelectedState(data.state || '');
       setUrl(data.url || '');
 
-      setProgress(100);
       onOpen();
     } catch (error) {
       console.error("Error fetching job data:", error);
       setJobData(null);
-      setProgress(100);
     } finally {
       setLoading(false);
-      clearInterval(intervalId);
     }
   };
 
-const handleConfirmation = async () => {
+  const handleConfirmation = async () => {
+    const selectedStateObj = states.find(
+      (state) => state.name === selectedState || state.abbrev === selectedState
+    );
+    const stateId = selectedStateObj ? selectedStateObj.id : null;
 
-  const selectedStateObj = states.find(
-    (state) => state.name === selectedState || state.abbrev === selectedState
-  );
-  const stateId = selectedStateObj ? selectedStateObj.id : null;
+    const newJob = {
+      job_title: jobTitle,
+      company: company,
+      job_description: jobDescription,
+      job_requirements: jobRequirements,
+      payment_type: paymentType,
+      salary_start: salaryStart || null,
+      salary_end: salaryEnd || null,
+      url: url,
+      city: city,
+      state: stateId || 'CA',
+    };
 
+    try {
+      const response = await fetch('http://127.0.0.1:8000/api/jobs/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newJob),
+      });
 
-  const newJob = {
-    job_title: jobTitle,
-    company: company,
-    job_description: jobDescription,
-    job_requirements: jobRequirements,
-    payment_type: paymentType,
-    salary_start: salaryStart || null,
-    salary_end: salaryEnd || null,
-    url: url,
-    city: city,
-    state: stateId || 'CA',
-  };
+      if (!response.ok) throw new Error(`Error saving job: ${response.statusText}`);
 
-  console.log("New Job to save:", newJob);
-
-  try {
-    const response = await fetch('http://127.0.0.1:8000/api/jobs/', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(newJob),
-    });
-
-    if (!response.ok) {
-      const errorResponse = await response.json();
-      console.error("Error saving job:", errorResponse);
-      throw new Error(`Error saving job: ${response.statusText}`);
+      const savedJob = await response.json();
+      setSavedJobs((prevJobs) => [...prevJobs, savedJob]);
+    } catch (error) {
+      console.error("Error saving job data:", error);
     }
 
-    const savedJob = await response.json();
-    console.log("Job saved successfully:", savedJob);
-
-    setSavedJobs((prevJobs) => [...prevJobs, savedJob]);
-  } catch (error) {
-    console.error("Error saving job data:", error);
-  }
-
-  onClose();
-};
-
+    onClose();
+  };
 
   return (
     <Box>
@@ -184,27 +145,25 @@ const handleConfirmation = async () => {
           onClick={fetchJobData} 
           isDisabled={loading || !isValidUrl(url)}
         >
-          {loading ? `Loading: ${progress}%` : "Fetch Job Data"}
+          {loading ? "Loading..." : "Fetch Job Data"}
         </Button>
         {loading && (
           <Progress
-            value={progress}
             size="sm"
             width="100px"
             ml={4}
             colorScheme="teal"
+            isIndeterminate
           />
         )}
       </Box>
 
-      {/* Job Data Modal */}
       <Modal isOpen={isOpen} onClose={onClose}>
         <ModalOverlay />
         <ModalContent maxWidth="1000px" textAlign="center">
           <ModalHeader>Confirm Job Information</ModalHeader>
           <ModalCloseButton />
           <ModalBody>
-            {/* Form controls for job data */}
             <FormControl>
               <FormLabel>Job Title</FormLabel>
               <Input 
@@ -226,8 +185,6 @@ const handleConfirmation = async () => {
                 onChange={(e) => setCity(e.target.value)} 
               />
             </FormControl>
-
-            {/* Remove the state dropdown */}
             <FormControl mt={4}>
               <FormLabel>State</FormLabel>
               <Input 
@@ -235,7 +192,6 @@ const handleConfirmation = async () => {
                 readOnly 
               />
             </FormControl>
-
             <FormControl mt={4}>
               <FormLabel>Salary Start</FormLabel>
               <Input 
