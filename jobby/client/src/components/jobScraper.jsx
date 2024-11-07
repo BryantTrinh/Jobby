@@ -23,6 +23,7 @@ import {
   Stack,
   Text,
 } from "@chakra-ui/react";
+import { useToast } from '@chakra-ui/react';
 
 const JobScraper = () => {
   const [jobData, setJobData] = useState(null);
@@ -40,15 +41,23 @@ const JobScraper = () => {
   const [states, setStates] = useState([]);
   const [selectedState, setSelectedState] = useState('');
   const [url, setUrl] = useState('');
+  const toast = useToast();
 
   useEffect(() => {
     const fetchStates = async () => {
       try {
         const response = await fetch('http://127.0.0.1:8000/api/states/');
+        if (!response.ok) throw new Error('Error fetching states');
         const data = await response.json();
         setStates(data);
       } catch (error) {
         console.error("Error fetching states:", error);
+        toast({
+          title: "Failed to fetch states",
+          status: "error",
+          duration: 5000,
+          isClosable: true,
+        });
       }
     };
     fetchStates();
@@ -58,11 +67,11 @@ const JobScraper = () => {
     setUrl(e.target.value);
   };
 
-  const isValidUrl = (urlString) => {
-    const urlPattern = /^(https?:\/\/)?(www\.)?indeed\.com\/jobs\?q=[^&]+&l=[^&]+(&[^&]*)*$/;
-    const baseUrlPattern = /^(https?:\/\/)?(www\.)?indeed\.com\/?$/;
-    return urlPattern.test(urlString) || baseUrlPattern.test(urlString);
-  };
+  // REGEX for fetch job data. Want to make sure we enter a valid indeed link before being able to press Fetch
+const isValidUrl = (urlString) => {
+  const urlPattern = /^(https?:\/\/)?(www\.)?indeed\.com\/(?:q-[^&]+-l-[^&]+|jobs)\?.*$/;
+  return urlPattern.test(urlString);
+};
 
   const fetchJobData = async () => {
     setLoading(true);
@@ -75,6 +84,8 @@ const JobScraper = () => {
       if (!response.ok) throw new Error(`Failed to fetch data: ${response.status}`);
 
       const data = await response.json();
+      console.log("Fetched Job Data:", data);
+
       setJobTitle(data.job_title || '');
       setCompany(data.company || '');
       setJobDescription(data.job_description || '');
@@ -84,17 +95,22 @@ const JobScraper = () => {
       setPaymentType(data.payment_type || 'Not provided');
       setJobRequirements(Array.isArray(data.job_requirements) ? data.job_requirements : []);
       setSelectedState(data.state || '');
-      setUrl(data.url || '');
 
       onOpen();
     } catch (error) {
       console.error("Error fetching job data:", error);
-      setJobData(null);
+      toast({
+        title: "Failed to fetch job data",
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+      });
     } finally {
       setLoading(false);
     }
   };
-
+  
+  // Code for saving to DB
   const handleConfirmation = async () => {
     const selectedStateObj = states.find(
       (state) => state.name === selectedState || state.abbrev === selectedState
@@ -114,6 +130,8 @@ const JobScraper = () => {
       state: stateId || 'CA',
     };
 
+    console.log("Saving Job Data:", newJob);
+
     try {
       const response = await fetch('http://127.0.0.1:8000/api/jobs/', {
         method: 'POST',
@@ -125,8 +143,20 @@ const JobScraper = () => {
 
       const savedJob = await response.json();
       setSavedJobs((prevJobs) => [...prevJobs, savedJob]);
+      toast({
+        title: "Job saved successfully!",
+        status: "success",
+        duration: 10000,
+        isClosable: true,
+      });
     } catch (error) {
       console.error("Error saving job data:", error);
+      toast({
+        title: "Failed to save job",
+        status: "error",
+        duration: 10000,
+        isClosable: true,
+      });
     }
 
     onClose();
@@ -247,14 +277,16 @@ const JobScraper = () => {
           <AccordionItem key={job.id || index}>
             <AccordionButton>
               <Box flex="1" textAlign="left">
-                {job.job_title} at {job.company}
+                <Text>Job Title and Company: {job.job_title}</Text>
+                <Text>Company: {job.company}</Text>
               </Box>
               <AccordionIcon />
             </AccordionButton>
             <AccordionPanel pb={4}>
               <Stack>
-                <Text>Job Description: {job.description}</Text>
-                <Text>Location: {job.city}, {job.state}</Text>
+                <Text >Job Description: {job.job_description}</Text>
+                <Text>Job Salary: {job.salary_start} - {job.salary_end}</Text>
+                <Text>City: {job.city}</Text>
               </Stack>
             </AccordionPanel>
           </AccordionItem>
