@@ -84,8 +84,13 @@ def job_view(request):
         if body.get('payment_type') != 'hourly' and body.get('payment_type') != 'yearly':
             return Response({'message': 'Invalid payment type - hourly or salary only'}, status=status.HTTP_400_BAD_REQUEST)
         
-        salary_start = body.get('salary_start').replace(',', '')
-        salary_end = body.get('salary_end').replace(',', '')
+        salary_start = None
+        salary_end = None
+        if body.get('salary_start') is not None:
+            salary_start = body.get('salary_start').replace(',', '')
+        if body.get('salary_end') is not None:
+            salary_end = body.get('salary_end').replace(',', '')
+            
         try:
             salary_start = float(salary_start)
             salary_end = float(salary_end)
