@@ -90,9 +90,9 @@ const isValidUrl = (urlString) => {
       setCompany(data.company || '');
       setJobDescription(data.job_description || '');
       setCity(data.city || '');
-      setSalaryStart(data.salary_start || 'Not provided');
-      setSalaryEnd(data.salary_end || 'Not provided');
-      setPaymentType(data.payment_type || 'Not provided');
+      setSalaryStart(data.salary_start || null);
+      setSalaryEnd(data.salary_end || null);
+      setPaymentType(data.payment_type || null);
       setJobRequirements(Array.isArray(data.job_requirements) ? data.job_requirements : []);
       setSelectedState(data.state || '');
 
@@ -125,6 +125,7 @@ const isValidUrl = (urlString) => {
       payment_type: paymentType,
       salary_start: salaryStart || null,
       salary_end: salaryEnd || null,
+      // Have to add logic to check if not provided then make it null
       url: url,
       city: city,
       state: stateId || 'CA',
