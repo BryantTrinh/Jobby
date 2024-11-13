@@ -11,7 +11,7 @@ class StateSerializer(serializers.ModelSerializer):
 class PaymentTypeSeralizer(serializers.ModelSerializer):
     class Meta:
         model = PaymentType
-        fields = ['name']
+        fields = ['id', 'name']
 
 class JobSerializer(serializers.ModelSerializer):
     job_title = serializers.CharField(source='title')
@@ -23,7 +23,6 @@ class JobSerializer(serializers.ModelSerializer):
         read_only = True,
         slug_field = "name"
     )
-    # payment_type = PaymentTypeSeralizer()
     
     class Meta:
         model = Job
