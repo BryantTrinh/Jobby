@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import State, Job
+from .models import State, Job, PaymentType
 
 # Used to serialize models into objects
 
@@ -7,6 +7,11 @@ class StateSerializer(serializers.ModelSerializer):
     class Meta:
         model = State
         fields = ['name', 'abbrev']
+
+class PaymentTypeSeralizer(serializers.ModelSerializer):
+    class Meta:
+        model = PaymentType
+        fields = ['name']
 
 class JobSerializer(serializers.ModelSerializer):
     job_title = serializers.CharField(source='title')
