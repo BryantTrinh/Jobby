@@ -3,6 +3,10 @@
     "start": "concurrently --kill-others \"cd client && npm run dev\" \"cd server && python manage.py runserver\""
   },
   "dependencies": {
-    "concurrently": "^9.0.1"
+    "add": "^2.0.6",
+    "chakra": "^0.0.3",
+    "concurrently": "^9.0.1",
+    "progress": "^2.0.3",
+    "snippet": "^0.1.0"
   }
 }

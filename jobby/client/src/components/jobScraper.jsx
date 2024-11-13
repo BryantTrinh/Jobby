@@ -23,11 +23,11 @@ import {
   Stack,
   Text,
 } from "@chakra-ui/react";
+import { useToast } from '@chakra-ui/react';
 
 const JobScraper = () => {
   const [jobData, setJobData] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [progress, setProgress] = useState(0);
   const [savedJobs, setSavedJobs] = useState([]);
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [jobTitle, setJobTitle] = useState('');
@@ -41,18 +41,25 @@ const JobScraper = () => {
   const [states, setStates] = useState([]);
   const [selectedState, setSelectedState] = useState('');
   const [url, setUrl] = useState('');
+  const toast = useToast();
 
   useEffect(() => {
     const fetchStates = async () => {
       try {
         const response = await fetch('http://127.0.0.1:8000/api/states/');
+        if (!response.ok) throw new Error('Error fetching states');
         const data = await response.json();
         setStates(data);
       } catch (error) {
         console.error("Error fetching states:", error);
+        toast({
+          title: "Failed to fetch states",
+          status: "error",
+          duration: 5000,
+          isClosable: true,
+        });
       }
     };
-
     fetchStates();
   }, []);
 
@@ -61,115 +68,100 @@ const JobScraper = () => {
   };
 
   // REGEX for fetch job data. Want to make sure we enter a valid indeed link before being able to press Fetch
-  const isValidUrl = (urlString) => {
-    const urlPattern = /^(https?:\/\/)?(www\.)?indeed\.com\/jobs\?q=[^&]+&l=[^&]+(&[^&]*)*$/;
-    const baseUrlPattern = /^(https?:\/\/)?(www\.)?indeed\.com\/?$/;
-    return urlPattern.test(urlString) || baseUrlPattern.test(urlString);
-  };
+const isValidUrl = (urlString) => {
+  const urlPattern = /^(https?:\/\/)?(www\.)?indeed\.com\/(?:q-[^&]+-l-[^&]+|jobs)\?.*$/;
+  return urlPattern.test(urlString);
+};
 
   const fetchJobData = async () => {
     setLoading(true);
-    setProgress(0);
-    let intervalId;
-
-    intervalId = setInterval(() => {
-      setProgress((prevProgress) => {
-        if (prevProgress < 99) {
-          return prevProgress + 1;
-        } else {
-          return prevProgress;
-        }
-      });
-    }, 190);
-
     try {
       const response = await fetch(`http://127.0.0.1:8000/api/scrape/?url=${encodeURIComponent(url)}`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ url })
       });
-      if (!response.ok) {
-        console.error(`HTTP error! status: ${response.status}`);
-        throw new Error(`Failed to fetch data: ${response.status}`);
-      }
+      if (!response.ok) throw new Error(`Failed to fetch data: ${response.status}`);
 
       const data = await response.json();
-      console.log("Fetched job data:", data);
+      console.log("Fetched Job Data:", data);
 
       setJobTitle(data.job_title || '');
       setCompany(data.company || '');
       setJobDescription(data.job_description || '');
       setCity(data.city || '');
-      setSalaryStart(data.salary_start || 'Not provided');
-      setSalaryEnd(data.salary_end || 'Not provided');
-      setPaymentType(data.payment_type || 'Not provided');
+      setSalaryStart(data.salary_start || null);
+      setSalaryEnd(data.salary_end || null);
+      setPaymentType(data.payment_type || null);
       setJobRequirements(Array.isArray(data.job_requirements) ? data.job_requirements : []);
       setSelectedState(data.state || '');
-      setUrl(data.url || '');
 
-      setProgress(100);
       onOpen();
     } catch (error) {
       console.error("Error fetching job data:", error);
-      setJobData(null);
-      setProgress(100);
+      toast({
+        title: "Failed to fetch job data",
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+      });
     } finally {
       setLoading(false);
-      clearInterval(intervalId);
     }
   };
+  
+  // Code for saving to DB
+  const handleConfirmation = async () => {
+    const selectedStateObj = states.find(
+      (state) => state.name === selectedState || state.abbrev === selectedState
+    );
+    const stateId = selectedStateObj ? selectedStateObj.id : null;
 
-const handleConfirmation = async () => {
+    const newJob = {
+      job_title: jobTitle,
+      company: company,
+      job_description: jobDescription,
+      job_requirements: jobRequirements,
+      payment_type: paymentType,
+      salary_start: salaryStart || null,
+      salary_end: salaryEnd || null,
+      // Have to add logic to check if not provided then make it null
+      url: url,
+      city: city,
+      state: stateId || 'CA',
+    };
 
-  const selectedStateObj = states.find(
-    (state) => state.name === selectedState || state.abbrev === selectedState
-  );
-  const stateId = selectedStateObj ? selectedStateObj.id : null;
+    console.log("Saving Job Data:", newJob);
 
+    try {
+      const response = await fetch('http://127.0.0.1:8000/api/jobs/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newJob),
+      });
 
-  const newJob = {
-    job_title: jobTitle,
-    company: company,
-    job_description: jobDescription,
-    job_requirements: jobRequirements,
-    payment_type: paymentType,
-    salary_start: parseInt(salaryStart) || null,
-    salary_end: parseInt(salaryEnd) || null,
-    url: url,
-    city: city,
-    state: stateId || 'CA',
-  };
+      if (!response.ok) throw new Error(`Error saving job: ${response.statusText}`);
 
-  console.log("New Job to save:", newJob);
-
-  try {
-    const response = await fetch('http://127.0.0.1:8000/api/jobs/', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(newJob),
-    });
-
-    if (!response.ok) {
-      const errorResponse = await response.json();
-      console.error("Error saving job:", errorResponse);
-      throw new Error(`Error saving job: ${response.statusText}`);
+      const savedJob = await response.json();
+      setSavedJobs((prevJobs) => [...prevJobs, savedJob]);
+      toast({
+        title: "Job saved successfully!",
+        status: "success",
+        duration: 10000,
+        isClosable: true,
+      });
+    } catch (error) {
+      console.error("Error saving job data:", error);
+      toast({
+        title: "Failed to save job",
+        status: "error",
+        duration: 10000,
+        isClosable: true,
+      });
     }
 
-    const savedJob = await response.json();
-    console.log("Job saved successfully:", savedJob);
-
-    setSavedJobs((prevJobs) => [...prevJobs, savedJob]);
-  } catch (error) {
-    console.error("Error saving job data:", error);
-  }
-
-  onClose();
-};
-
+    onClose();
+  };
 
   return (
     <Box>
@@ -184,27 +176,25 @@ const handleConfirmation = async () => {
           onClick={fetchJobData} 
           isDisabled={loading || !isValidUrl(url)}
         >
-          {loading ? `Loading: ${progress}%` : "Fetch Job Data"}
+          {loading ? "Loading..." : "Fetch Job Data"}
         </Button>
         {loading && (
           <Progress
-            value={progress}
             size="sm"
             width="100px"
             ml={4}
             colorScheme="teal"
+            isIndeterminate
           />
         )}
       </Box>
 
-      {/* Job Data Modal */}
       <Modal isOpen={isOpen} onClose={onClose}>
         <ModalOverlay />
         <ModalContent maxWidth="1000px" textAlign="center">
           <ModalHeader>Confirm Job Information</ModalHeader>
           <ModalCloseButton />
           <ModalBody>
-            {/* Form controls for job data */}
             <FormControl>
               <FormLabel>Job Title</FormLabel>
               <Input 
@@ -226,8 +216,6 @@ const handleConfirmation = async () => {
                 onChange={(e) => setCity(e.target.value)} 
               />
             </FormControl>
-
-            {/* Remove the state dropdown */}
             <FormControl mt={4}>
               <FormLabel>State</FormLabel>
               <Input 
@@ -235,7 +223,6 @@ const handleConfirmation = async () => {
                 readOnly 
               />
             </FormControl>
-
             <FormControl mt={4}>
               <FormLabel>Salary Start</FormLabel>
               <Input 
@@ -291,14 +278,16 @@ const handleConfirmation = async () => {
           <AccordionItem key={job.id || index}>
             <AccordionButton>
               <Box flex="1" textAlign="left">
-                {job.job_title} at {job.company}
+                <Text>Job Title and Company: {job.job_title}</Text>
+                <Text>Company: {job.company}</Text>
               </Box>
               <AccordionIcon />
             </AccordionButton>
             <AccordionPanel pb={4}>
               <Stack>
-                <Text>Job Description: {job.description}</Text>
-                <Text>Location: {job.city}, {job.state}</Text>
+                <Text >Job Description: {job.job_description}</Text>
+                <Text>Job Salary: {job.salary_start} - {job.salary_end}</Text>
+                <Text>City: {job.city}</Text>
               </Stack>
             </AccordionPanel>
           </AccordionItem>

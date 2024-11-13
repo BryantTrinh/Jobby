@@ -91,13 +91,15 @@ def job_view(request):
         salary_start = None
         salary_end = None
         if body.get('salary_start') is not None:
-            salary_start = body.get('salary_start').replace(',', '')
+            salary_start = body.get('salary_start').replace(',', '').replace('$', '')
         if body.get('salary_end') is not None:
-            salary_end = body.get('salary_end').replace(',', '')
+            salary_end = body.get('salary_end').replace(',', '').replace('$', '')
             
         try:
-            salary_start = float(salary_start)
-            salary_end = float(salary_end)
+            if salary_start is not None:
+              salary_start = float(salary_start)
+            if salary_end is not None:
+              salary_end = float(salary_end)
         except ValueError as e:
             return Response({'message': 'Invalid salary start/end values - ' + e}, status=status.HTTP_400_BAD_REQUEST)
         
