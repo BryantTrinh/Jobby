@@ -1,7 +1,7 @@
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
-from jobby.models import Job, State
+from jobby.models import Job, State, PaymentType
 from jobby.serializer import JobSerializer
 from django.db.models import Q
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
@@ -75,15 +75,19 @@ def job_view(request):
         # check db by url
         if Job.objects.filter(url=body.get('url')).exists():
             return Response({'message': 'Job with this url already exists'}, status=status.HTTP_400_BAD_REQUEST)
-        stateObj = None
+        state_obj = None
         # get state object from db
-        stateObj = State.objects.get(Q(name__iexact=body.get('state')) | Q(abbrev__iexact=body.get('state')))
-        if stateObj == None:
+        state_obj = State.objects.get(Q(name__iexact=body.get('state')) | Q(abbrev__iexact=body.get('state')))
+        if state_obj == None:
             return Response({'message': 'Invalid state name/abbrev'}, status=status.HTTP_400_BAD_REQUEST)
         
-        if body.get('payment_type') != 'hourly' and body.get('payment_type') != 'yearly':
-            return Response({'message': 'Invalid payment type - hourly or salary only'}, status=status.HTTP_400_BAD_REQUEST)
-        
+        # payment type object
+        payment_type_obj = None
+        if body.get('payment_type') != None:
+            payment_type_obj, created = PaymentType.objects.get_or_create(
+                name = body.get('payment_type')
+            )
+
         salary_start = None
         salary_end = None
         if body.get('salary_start') is not None:
@@ -108,11 +112,11 @@ def job_view(request):
             requirements = '\n'.join(body.get('job_requirements')),
             salary_start = salary_start,
             salary_end = salary_end,
-            payment_type = body.get('payment_type'),
+            payment_type = payment_type_obj,
             applied = now,
             url = body.get('url'),
             city = body.get('city'),
-            state = stateObj
+            state = state_obj
         )
         serializer = JobSerializer(newJob)
         return Response(serializer.data, status.HTTP_200_OK)
