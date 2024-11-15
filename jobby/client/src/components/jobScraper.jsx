@@ -279,14 +279,34 @@ const handleConfirmation = async () => {
             </FormControl>
             <FormControl mt={4}>
               <FormLabel>Payment Type</FormLabel>
-              <select value={paymentType} onChange={(e) => setPaymentType(e.target.value)}>
-                <option value="">Select Payment Type</option>
-                {paymentTypes.map((type) => (
-                  <option key={type.id} value={type.id}>
-                    {type.name}
-                  </option>
-                ))}
-              </select>
+              <div style={{ display: 'flex', alignItems: 'center' }}>
+                <Input 
+                  value={paymentType} 
+                  isReadOnly
+                  style={{ 
+                    marginRight: '25px', 
+                    padding: '5px',
+                    border: '1px solid #ccc',
+                    borderRadius: '4px',
+                    width: 'auto',
+                    
+                  }}
+                />
+                <select 
+                  value={paymentType} 
+                  onChange={(e) => setPaymentType(e.target.value)} 
+                  style={{ 
+                    padding: '5px', 
+                    width: 'auto',
+                    border: '1px solid #ccc',
+                    borderRadius: '4px',
+                  }}
+                >
+                  <option value="">Select Payment Type</option>
+                  <option value="Per Year">Year</option>
+                  <option value="Per Hour">Hour</option>
+                </select>
+              </div>
             </FormControl>
             <FormControl mt={4}>
               <FormLabel>Job Requirements</FormLabel>
