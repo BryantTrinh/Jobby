@@ -109,7 +109,8 @@ function App() {
           <Image
             src={logo}
             alt="Website logo"
-            boxSize="350px"
+            width="400px"
+            height="300px"
             cursor="pointer"
           />
         </Link>
@@ -125,7 +126,7 @@ function App() {
                 align="center"
               >
                 <h2>
-                  <Text fontSize='3xl' color='#008080'>Job Documentation & Assistance</Text>
+                  <Text fontSize='3xl' color='#008080' mt={-20}>Job Documentation & Assistance</Text>
                   <Text fontSize='3xl' color='#008080' align="center">Powered by AI</Text>
                 </h2>
               </Stack>
