@@ -129,25 +129,6 @@ function App() {
                   <Text fontSize='3xl' color='#008080' align="center">Powered by AI</Text>
                 </h2>
               </Stack>
-
-              {/* Save application field and save button */}
-              <Stack 
-                fontFamily="Verdana" 
-                spacing={4} 
-                align="center" 
-                mb={20} 
-                width="100%"
-              >
-                <Input
-                  placeholder="Save application via entering in URL"
-                  size="md"
-                  width="350px"
-                  textAlign="center"
-                />
-                <Button colorScheme='teal' size='md'>
-                  Save job application
-                </Button>
-              </Stack>
               
               {/* Job Scraper for testing */}
               <Flex 
