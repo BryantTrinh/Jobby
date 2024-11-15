@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
   Box,
   Input,
@@ -15,6 +15,7 @@ import {
   useDisclosure,
   Stack,
   Text,
+  Textarea,
   Accordion,
   AccordionItem,
   AccordionButton,
@@ -27,7 +28,6 @@ function JobAccordion({ savedJobs, setSavedJobs }) {
   const [isEditing, setIsEditing] = useState(false);
   const [selectedJobIndex, setSelectedJobIndex] = useState(null);
   const [overlay, setOverlay] = useState(null);
-  const [jobDetails, setJobDetails] = useState(null);
 
   const OverlayTwo = () => (
     <ModalOverlay
@@ -56,44 +56,31 @@ function JobAccordion({ savedJobs, setSavedJobs }) {
     onClose();
   }
 
-  // Fetch job details when opening the modal
-  useEffect(() => {
-    if (selectedJobIndex !== null) {
-      const jobId = savedJobs[selectedJobIndex].id;
-      fetch(`http://127.0.0.1:8000/api/jobs/${jobId}`)
-        .then(response => response.json())
-        .then(data => {
-          setJobDetails(data);
-        })
-        .catch(error => console.error('Error fetching job details:', error));
-    }
-  }, [selectedJobIndex]);
-
-  return (
-    <Box width="800px" maxWidth="800px" mb="20px" mt="10">
-      <Accordion fontFamily="Verdana" allowMultiple>
-        {savedJobs && savedJobs.length > 0 ? (
-          savedJobs.map((job, index) => (
-            <AccordionItem key={index}>
-              <h2>
-                <AccordionButton 
-                  _expanded={{ bg: 'tomato', color: 'white' }} 
-                  onClick={() => {
-                    setSelectedJobIndex(index);
-                    onOpen();
-                  }}
-                >
-                  <Box as='span' flex='1' textAlign='left'>
-                    {job.company} : {job.job_title}
-                  </Box>
-                  <AccordionIcon />
-                </AccordionButton>
-              </h2>
-            </AccordionItem>
-          ))
-        ) : (
-            <></>
-          )}
+return (
+  <Box width="800px" maxWidth="800px" mb="20px" mt="10">
+    <Accordion fontFamily="Verdana" allowMultiple>
+      {savedJobs && savedJobs.length > 0 ? (
+        savedJobs.map((job, index) => (
+          <AccordionItem key={index}>
+            <h2>
+              <AccordionButton 
+                _expanded={{ bg: 'tomato', color: 'white' }} 
+                onClick={() => {
+                  setSelectedJobIndex(index);
+                  onOpen();
+                }}
+              >
+                <Box as='span' flex='1' textAlign='left'>
+                  {job.company} : {job.jobTitle}
+                </Box>
+                <AccordionIcon />
+              </AccordionButton>
+            </h2>
+          </AccordionItem>
+        ))
+      ) : (
+          <></>
+        )}
       </Accordion>
 
       {/* Modal that opens when job accordion is clicked */}
@@ -104,24 +91,24 @@ function JobAccordion({ savedJobs, setSavedJobs }) {
           <ModalCloseButton />
 
           <ModalBody>
-
-              {/* Company */}
-            <Box border={isEditing ? "5px solid tomato" : "5px solid teal"} p={4} borderRadius="md">
-              <FormLabel>Company:</FormLabel>
-              <Input
-                name="company"
-                placeholder="Company"
-                value={isEditing ? savedJobs[selectedJobIndex].company : jobDetails?.company}
-                onChange={(e) => {
-                  const newJobs = [...savedJobs];
-                  newJobs[selectedJobIndex].company = e.target.value;
-                  setSavedJobs(newJobs);
-                }}
-              />
-            </Box>
             
+            {/* Company */}
+          <Box border={isEditing ? "5px solid tomato" : "5px solid teal"} p={4} borderRadius="md">
+            <FormLabel>Company:</FormLabel>
+            <Input
+              name="company"
+              placeholder="Company"
+              value={isEditing ? savedJobs[selectedJobIndex].company : savedJobs[selectedJobIndex].company}
+              onChange={(e) => {
+                const newJobs = [...savedJobs];
+                newJobs[selectedJobIndex].company = e.target.value;
+                setSavedJobs(newJobs);
+              }}
+            />
+          </Box>
+
             <Stack spacing={4}>
-              {selectedJobIndex !== null && jobDetails && (
+              {selectedJobIndex !== null && savedJobs[selectedJobIndex] && (
                 <>
                   {/* Job Title */}
                   <Box border={isEditing ? "5px solid tomato" : "5px solid teal"} p={4} borderRadius="md">
@@ -129,10 +116,10 @@ function JobAccordion({ savedJobs, setSavedJobs }) {
                     <Input
                       name="title"
                       placeholder="Job Title"
-                      value={isEditing ? savedJobs[selectedJobIndex]?.job_title || '' : jobDetails?.job_title || ''}
+                      value={isEditing ? savedJobs[selectedJobIndex].jobTitle : savedJobs[selectedJobIndex].jobTitle}
                       onChange={(e) => {
                         const newJobs = [...savedJobs];
-                        newJobs[selectedJobIndex].job_title = e.target.value;
+                        newJobs[selectedJobIndex].jobTitle = e.target.value;
                         setSavedJobs(newJobs);
                       }}
                     />
@@ -144,7 +131,7 @@ function JobAccordion({ savedJobs, setSavedJobs }) {
                     <Input
                       name="city"
                       placeholder="City"
-                      value={isEditing ? savedJobs[selectedJobIndex].city : jobDetails.city}
+                      value={isEditing ? savedJobs[selectedJobIndex].city : savedJobs[selectedJobIndex].city}
                       onChange={(e) => {
                         const newJobs = [...savedJobs];
                         newJobs[selectedJobIndex].city = e.target.value;
@@ -159,10 +146,41 @@ function JobAccordion({ savedJobs, setSavedJobs }) {
                     <Input
                       name="state"
                       placeholder="State"
-                      value={isEditing ? savedJobs[selectedJobIndex].state : jobDetails?.state?.name}
+                      value={isEditing ? savedJobs[selectedJobIndex].state : savedJobs[selectedJobIndex].state}
                       onChange={(e) => {
                         const newJobs = [...savedJobs];
                         newJobs[selectedJobIndex].state = e.target.value;
+                        setSavedJobs(newJobs);
+                      }}
+                    />
+                  </Box>
+
+                  {/* Salary */}
+                  <Box border={isEditing ? "5px solid tomato" : "5px solid teal"} p={4} borderRadius="md">
+                    <FormLabel>Salary:</FormLabel>
+                    <Input
+                      name="salary"
+                      placeholder="Salary"
+                      value={isEditing ? savedJobs[selectedJobIndex].salary : savedJobs[selectedJobIndex].salary}
+                      onChange={(e) => {
+                        const newJobs = [...savedJobs];
+                        newJobs[selectedJobIndex].salary = e.target.value;
+                        setSavedJobs(newJobs);
+                      }}
+                    />
+                  </Box>
+
+                  {/* Description */}
+                  <Box border={isEditing ? "5px solid tomato" : "5px solid teal"} p={4} borderRadius="md">
+                    <FormLabel>Description:</FormLabel>
+                    <Textarea
+                      height="500px"
+                      name="description"
+                      placeholder="Job Description"
+                      value={isEditing ? savedJobs[selectedJobIndex].description : savedJobs[selectedJobIndex].description}
+                      onChange={(e) => {
+                        const newJobs = [...savedJobs];
+                        newJobs[selectedJobIndex].description = e.target.value;
                         setSavedJobs(newJobs);
                       }}
                     />
