@@ -22,13 +22,16 @@ import {
   AccordionIcon,
   Stack,
   Text,
+  Link,
 } from "@chakra-ui/react";
+import { ChakraProvider } from '@chakra-ui/react';
 import { useToast } from '@chakra-ui/react';
 
 const JobScraper = () => {
   const [jobData, setJobData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [savedJobs, setSavedJobs] = useState([]);
+  const [isJobSaved, setIsJobSaved] = useState(false);
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [jobTitle, setJobTitle] = useState('');
   const [company, setCompany] = useState('');
@@ -36,6 +39,7 @@ const JobScraper = () => {
   const [city, setCity] = useState('');
   const [salaryStart, setSalaryStart] = useState('');
   const [salaryEnd, setSalaryEnd] = useState('');
+  const [paymentTypes, setPaymentTypes] = useState([]);
   const [paymentType, setPaymentType] = useState('');
   const [jobRequirements, setJobRequirements] = useState([]);
   const [states, setStates] = useState([]);
@@ -43,38 +47,42 @@ const JobScraper = () => {
   const [url, setUrl] = useState('');
   const toast = useToast();
 
-  useEffect(() => {
-    const fetchStates = async () => {
-      try {
-        const response = await fetch('http://127.0.0.1:8000/api/states/');
-        if (!response.ok) throw new Error('Error fetching states');
-        const data = await response.json();
-        setStates(data);
-      } catch (error) {
-        console.error("Error fetching states:", error);
-        toast({
-          title: "Failed to fetch states",
-          status: "error",
-          duration: 5000,
-          isClosable: true,
-        });
-      }
-    };
-    fetchStates();
-  }, []);
+const fetchStates = async () => {
+  try {
+    const response = await fetch('http://127.0.0.1:8000/api/states/');
+    if (!response.ok) throw new Error('Error fetching states');
+    const data = await response.json();
+    setStates(data);
+  } catch (error) {
+    console.error("Error fetching states:", error);
+    toast({
+      title: "Failed to fetch states",
+      status: "error",
+      duration: 5000,
+      isClosable: true,
+    });
+  }
+};
+
+useEffect(() => {
+  fetchPaymentTypes();
+  fetchStates();
+}, []);
+
 
   const handleUrlChange = (e) => {
     setUrl(e.target.value);
   };
 
   // REGEX for fetch job data. Want to make sure we enter a valid indeed link before being able to press Fetch
-const isValidUrl = (urlString) => {
-  const urlPattern = /^(https?:\/\/)?(www\.)?indeed\.com\/(?:q-[^&]+-l-[^&]+|jobs)\?.*$/;
-  return urlPattern.test(urlString);
-};
+  const isValidUrl = (urlString) => {
+    const urlPattern = /^(https?:\/\/)?(www\.)?indeed\.com\/(?:q-[^&]+-l-[^&]+|jobs)\?.*$/;
+    return urlPattern.test(urlString);
+  };
 
   const fetchJobData = async () => {
     setLoading(true);
+    setIsJobSaved(false);
     try {
       const response = await fetch(`http://127.0.0.1:8000/api/scrape/?url=${encodeURIComponent(url)}`, {
         method: 'POST',
@@ -84,19 +92,19 @@ const isValidUrl = (urlString) => {
       if (!response.ok) throw new Error(`Failed to fetch data: ${response.status}`);
 
       const data = await response.json();
-      console.log("Fetched Job Data:", data);
+      console.log("State abbreviation:", data.state);
 
-      setJobTitle(data.job_title || '');
-      setCompany(data.company || '');
-      setJobDescription(data.job_description || '');
-      setCity(data.city || '');
-      setSalaryStart(data.salary_start || null);
-      setSalaryEnd(data.salary_end || null);
-      setPaymentType(data.payment_type || null);
-      setJobRequirements(Array.isArray(data.job_requirements) ? data.job_requirements : []);
-      setSelectedState(data.state || '');
+    setJobTitle(data.job_title || '');
+    setCompany(data.company || '');
+    setJobDescription(data.job_description || '');
+    setSelectedState(data.state || '');
+    setCity(data.city || '');
+    setSalaryStart(data.salary_start || null);
+    setSalaryEnd(data.salary_end || null);
+    setPaymentType(data.payment_type);
+    setJobRequirements(Array.isArray(data.job_requirements) ? data.job_requirements : []);
 
-      onOpen();
+    onOpen();
     } catch (error) {
       console.error("Error fetching job data:", error);
       toast({
@@ -111,57 +119,82 @@ const isValidUrl = (urlString) => {
   };
   
   // Code for saving to DB
-  const handleConfirmation = async () => {
-    const selectedStateObj = states.find(
-      (state) => state.name === selectedState || state.abbrev === selectedState
-    );
-    const stateId = selectedStateObj ? selectedStateObj.id : null;
+const handleConfirmation = async () => {
+  if (!selectedState) {
+    console.error("State is missing or invalid:", selectedState);
+    toast({
+      title: "Failed to save job, job could already be saved. If not, please try again!",
+      description: "State is missing or invalid.",
+      status: "error",
+      duration: 5000,
+      isClosable: true,
+    });
+    return;
+  }
 
-    const newJob = {
-      job_title: jobTitle,
-      company: company,
-      job_description: jobDescription,
-      job_requirements: jobRequirements,
-      payment_type: paymentType,
-      salary_start: salaryStart || null,
-      salary_end: salaryEnd || null,
-      // Have to add logic to check if not provided then make it null
-      url: url,
-      city: city,
-      state: stateId || 'CA',
-    };
+  const newJob = {
+    job_title: jobTitle,
+    company: company,
+    job_description: jobDescription,
+    job_requirements: jobRequirements,
+    payment_type: paymentType,
+    salary_start: salaryStart || null,
+    salary_end: salaryEnd || null,
+    url: url,
+    city: city,
+    state: selectedState,
+  };
 
     console.log("Saving Job Data:", newJob);
+    console.log("Selected State Abbreviation:", selectedState);
+    console.log("Payment Type being saved:", paymentType);
 
-    try {
-      const response = await fetch('http://127.0.0.1:8000/api/jobs/', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(newJob),
-      });
+  try {
+    const response = await fetch('http://127.0.0.1:8000/api/jobs/', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(newJob),
+    });
+    if (!response.ok) throw new Error(`Error saving job: ${response.statusText}`);
+    const savedJob = await response.json();
+    setSavedJobs((prevJobs) => [...prevJobs, savedJob]);
 
-      if (!response.ok) throw new Error(`Error saving job: ${response.statusText}`);
+    setIsJobSaved(true);
+    toast({
+      title: "Job saved successfully!",
+      status: "success",
+      duration: 10000,
+      isClosable: true,
+    });
+  } catch (error) {
+    console.error("Error saving job data:", error);
+    toast({
+      title: "Failed to save, job is already be saved",
+      description: "If not, please try again!",
+      status: "error",
+      duration: 10000,
+      isClosable: true,
+    });
+  }
+};
 
-      const savedJob = await response.json();
-      setSavedJobs((prevJobs) => [...prevJobs, savedJob]);
-      toast({
-        title: "Job saved successfully!",
-        status: "success",
-        duration: 10000,
-        isClosable: true,
-      });
-    } catch (error) {
-      console.error("Error saving job data:", error);
-      toast({
-        title: "Failed to save job",
-        status: "error",
-        duration: 10000,
-        isClosable: true,
-      });
-    }
-
-    onClose();
-  };
+  // Adding this code to allow user to select hourly or yearly in the dropdown before saving job.
+  const fetchPaymentTypes = async () => {
+  try {
+    const response = await fetch('http://127.0.0.1:8000/api/payment/type/');
+    if (!response.ok) throw new Error('Error fetching payment types');
+    const data = await response.json();
+    setPaymentTypes(data);
+  } catch (error) {
+    console.error("Error fetching payment types:", error);
+    toast({
+      title: "Failed to fetch payment types",
+      status: "error",
+      duration: 5000,
+      isClosable: true,
+    });
+  }
+};
 
   return (
     <Box>
@@ -212,15 +245,15 @@ const isValidUrl = (urlString) => {
             <FormControl mt={4}>
               <FormLabel>City</FormLabel>
               <Input 
-                value={city} 
+                value={city || ''}
                 onChange={(e) => setCity(e.target.value)} 
               />
             </FormControl>
             <FormControl mt={4}>
               <FormLabel>State</FormLabel>
               <Input 
-                value={selectedState} 
-                readOnly 
+                value={selectedState || ''}
+                onChange={(e) => setSelectedState(e.target.value)}  
               />
             </FormControl>
             <FormControl mt={4}>
@@ -246,53 +279,101 @@ const isValidUrl = (urlString) => {
             </FormControl>
             <FormControl mt={4}>
               <FormLabel>Payment Type</FormLabel>
-              <Input 
-                value={paymentType} 
-                onChange={(e) => setPaymentType(e.target.value)} 
-              />
+              <div style={{ display: 'flex', alignItems: 'center' }}>
+                <Input 
+                  value={paymentType} 
+                  isReadOnly
+                  style={{ 
+                    marginRight: '25px', 
+                    padding: '5px',
+                    border: '1px solid #ccc',
+                    borderRadius: '4px',
+                    width: 'auto',
+                    
+                  }}
+                />
+                <select 
+                  value={paymentType} 
+                  onChange={(e) => setPaymentType(e.target.value)} 
+                  style={{ 
+                    padding: '5px', 
+                    width: 'auto',
+                    border: '1px solid #ccc',
+                    borderRadius: '4px',
+                  }}
+                >
+                  <option value="">Select Payment Type</option>
+                  <option value="Per Year">Year</option>
+                  <option value="Per Hour">Hour</option>
+                </select>
+              </div>
             </FormControl>
             <FormControl mt={4}>
               <FormLabel>Job Requirements</FormLabel>
               <Textarea 
-                value={jobRequirements.join('\n')}
-                onChange={(e) => {
-                  const requirements = e.target.value.split('\n').map(item => item.trim()).filter(item => item);
-                  setJobRequirements(requirements);
-                }}
+                value={jobRequirements.join(', ')} 
+                onChange={(e) => setJobRequirements(e.target.value.split(', '))}
               />
             </FormControl>
           </ModalBody>
+
           <ModalFooter>
-            <Button variant="ghost" onClick={onClose}>
-              Cancel
-            </Button>
-            <Button colorScheme="teal" onClick={handleConfirmation}>
+            <Button colorScheme="blue" mr={3} onClick={handleConfirmation}>
               Save Job
             </Button>
+              {isJobSaved && savedJobs.length > 0 && (
+                <Button
+                  colorScheme="teal"
+                  mr={3}
+                  onClick={() => {
+                    const jobId = savedJobs[savedJobs.length - 1].id;
+                    const jobDetailsUrl = `http://127.0.0.1:8000/api/jobs/${jobId}`;
+                    window.location.href = jobDetailsUrl;
+                    console.log('Redirecting to job details:', jobDetailsUrl);
+                  }}
+                >
+                  View In Depth Job Details
+                </Button>
+              )}
+            <Button onClick={onClose}>Cancel</Button>
           </ModalFooter>
         </ModalContent>
       </Modal>
 
-      <Accordion allowToggle>
-        {savedJobs.map((job, index) => (
-          <AccordionItem key={job.id || index}>
-            <AccordionButton>
-              <Box flex="1" textAlign="left">
-                <Text>Job Title and Company: {job.job_title}</Text>
-                <Text>Company: {job.company}</Text>
-              </Box>
-              <AccordionIcon />
-            </AccordionButton>
-            <AccordionPanel pb={4}>
-              <Stack>
-                <Text >Job Description: {job.job_description}</Text>
-                <Text>Job Salary: {job.salary_start} - {job.salary_end}</Text>
-                <Text>City: {job.city}</Text>
-              </Stack>
-            </AccordionPanel>
-          </AccordionItem>
-        ))}
-      </Accordion>
+{/* <Accordion allowToggle mt={8}>
+  {savedJobs.map((job) => {
+    const paymentType = paymentTypes.find((type) => type.id === job.payment_type);
+    return (
+      <AccordionItem key={job.id}>
+        <AccordionButton>
+          <Box flex="1" textAlign="left">
+            {job.company}: {job.job_title}
+          </Box>
+          <AccordionIcon />
+        </AccordionButton>
+        <AccordionPanel pb={4}>
+          <Text><strong>Job Title:</strong> {job.job_title}</Text>
+          <Text><strong>Company:</strong> {job.company}</Text>
+          <Text><strong>Description:</strong> {job.job_description}</Text>
+          <Text><strong>Requirements:</strong> {job.job_requirements}</Text>
+          <Text><strong>City:</strong> {job.city}</Text>
+          <Text><strong>State:</strong> {job.state.name} ({job.state.abbrev})</Text>
+          <Text><strong>URL: </strong> 
+            <Link
+              href={job.url}
+              isExternal
+              _hover={{ textDecoration: 'underline', color: 'teal.500' }}
+              cursor="pointer"
+            >
+              {job.url}
+            </Link>
+          </Text>
+        </AccordionPanel>
+      </AccordionItem>
+    );
+  })}
+</Accordion> */}
+
     </Box>
   );
 };
