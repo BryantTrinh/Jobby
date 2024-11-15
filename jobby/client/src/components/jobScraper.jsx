@@ -31,6 +31,7 @@ const JobScraper = () => {
   const [jobData, setJobData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [savedJobs, setSavedJobs] = useState([]);
+  const [isJobSaved, setIsJobSaved] = useState(false);
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [jobTitle, setJobTitle] = useState('');
   const [company, setCompany] = useState('');
@@ -81,6 +82,7 @@ useEffect(() => {
 
   const fetchJobData = async () => {
     setLoading(true);
+    setIsJobSaved(false);
     try {
       const response = await fetch(`http://127.0.0.1:8000/api/scrape/?url=${encodeURIComponent(url)}`, {
         method: 'POST',
@@ -121,7 +123,7 @@ const handleConfirmation = async () => {
   if (!selectedState) {
     console.error("State is missing or invalid:", selectedState);
     toast({
-      title: "Failed to save job",
+      title: "Failed to save job, job could already be saved. If not, please try again!",
       description: "State is missing or invalid.",
       status: "error",
       duration: 5000,
@@ -156,17 +158,19 @@ const handleConfirmation = async () => {
     if (!response.ok) throw new Error(`Error saving job: ${response.statusText}`);
     const savedJob = await response.json();
     setSavedJobs((prevJobs) => [...prevJobs, savedJob]);
+
+    setIsJobSaved(true);
     toast({
       title: "Job saved successfully!",
       status: "success",
       duration: 10000,
       isClosable: true,
     });
-    onClose();
   } catch (error) {
     console.error("Error saving job data:", error);
     toast({
-      title: "Failed to save job",
+      title: "Failed to save, job is already be saved",
+      description: "If not, please try again!",
       status: "error",
       duration: 10000,
       isClosable: true,
@@ -297,12 +301,26 @@ const handleConfirmation = async () => {
             <Button colorScheme="blue" mr={3} onClick={handleConfirmation}>
               Save Job
             </Button>
+              {isJobSaved && savedJobs.length > 0 && (
+                <Button
+                  colorScheme="teal"
+                  mr={3}
+                  onClick={() => {
+                    const jobId = savedJobs[savedJobs.length - 1].id;
+                    const jobDetailsUrl = `http://127.0.0.1:8000/api/jobs/${jobId}`;
+                    window.location.href = jobDetailsUrl;
+                    console.log('Redirecting to job details:', jobDetailsUrl);
+                  }}
+                >
+                  View In Depth Job Details
+                </Button>
+              )}
             <Button onClick={onClose}>Cancel</Button>
           </ModalFooter>
         </ModalContent>
       </Modal>
 
-<Accordion allowToggle mt={8}>
+{/* <Accordion allowToggle mt={8}>
   {savedJobs.map((job) => {
     const paymentType = paymentTypes.find((type) => type.id === job.payment_type);
     return (
@@ -334,7 +352,7 @@ const handleConfirmation = async () => {
       </AccordionItem>
     );
   })}
-</Accordion>
+</Accordion> */}
 
     </Box>
   );
