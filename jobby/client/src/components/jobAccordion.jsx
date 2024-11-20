@@ -84,7 +84,8 @@ function JobAccordion({ savedJobs, setSavedJobs }) {
                   }}
                 >
                   <Box as='span' flex='1' textAlign='left'>
-                    {job.company} : {job.job_title}
+                    <Text fontWeight="bold">{job.company}:</Text> 
+                    <Text> {job.job_title} </Text>
                   </Box>
                   <AccordionIcon />
                 </AccordionButton>
@@ -179,6 +180,18 @@ function JobAccordion({ savedJobs, setSavedJobs }) {
       ) : (
         <Button variant='ghost' colorScheme='teal' onClick={toggleEditMode}>Edit</Button>
       )}
+      <Button
+                  colorScheme="teal"
+                  mr={3}
+                  onClick={() => {
+                    const jobId = savedJobs.id;
+                    const jobDetailsUrl = `http://127.0.0.1:8000/api/jobs/${jobId}`;
+                    window.location.href = jobDetailsUrl;
+                    console.log('Redirecting to job details:', jobDetailsUrl);
+                  }}
+                >
+                  View In Depth Job Details
+                </Button>
       <Button colorScheme='blue' onClick={onClose}>Close</Button>
     </ModalFooter>
   </ModalContent>

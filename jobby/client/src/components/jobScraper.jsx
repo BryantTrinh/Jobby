@@ -201,6 +201,7 @@ const handleConfirmation = async () => {
     <Box>
       <Input
         placeholder="Enter job listing URL"
+        textAlign="center"
         value={url}
         onChange={handleUrlChange}
       />
