@@ -10,7 +10,6 @@ import {
   ModalFooter,
   ModalBody,
   ModalCloseButton,
-  FormControl,
   FormLabel,
   useDisclosure,
   Stack,
@@ -20,7 +19,8 @@ import {
   AccordionButton,
   AccordionPanel,
   AccordionIcon,
-  Select,  // Import Select component
+  chakra,
+  Select,
 } from '@chakra-ui/react';
 
 function JobAccordion({ savedJobs, setSavedJobs }) {
@@ -30,7 +30,6 @@ function JobAccordion({ savedJobs, setSavedJobs }) {
   const [jobDetails, setJobDetails] = useState(null);
   const [states, setStates] = useState([]);
 
-  // Fetch the states list from the API on component mount
   useEffect(() => {
     async function fetchStates() {
       try {
@@ -64,7 +63,6 @@ function JobAccordion({ savedJobs, setSavedJobs }) {
     const updatedJob = updatedJobs[selectedJobIndex];
 
     if (field === 'state') {
-      // Update state with selected value directly
       updatedJob.state = states.find(state => state.name === value) || {};
     } else {
       updatedJob[field] = value;
@@ -72,12 +70,12 @@ function JobAccordion({ savedJobs, setSavedJobs }) {
 
     updatedJobs[selectedJobIndex] = updatedJob;
     setSavedJobs(updatedJobs);
-    setJobDetails(updatedJob);  // Ensure jobDetails gets updated
+    setJobDetails(updatedJob);
   };
 
   const handleEditClick = (index) => {
     setSelectedJobIndex(index);
-    setIsEditing(true);
+    setIsEditing(false);
     onOpen();
   };
 
@@ -137,7 +135,7 @@ function JobAccordion({ savedJobs, setSavedJobs }) {
         )}
       </Accordion>
 
-      {/* Modal for editing jobs */}
+      {/* Modal for viewing/editing jobs */}
       <Modal isOpen={isOpen} onClose={onClose} size="lg">
         <ModalOverlay />
         <ModalContent maxWidth="900px">
@@ -154,6 +152,13 @@ function JobAccordion({ savedJobs, setSavedJobs }) {
                     name="company"
                     value={jobDetails.company || ''}
                     onChange={(e) => handleInputChange('company', e.target.value)}
+                    isDisabled={!isEditing}  
+                    color="black"  
+                    _disabled={{ color: 'black' }}  
+                    _focus={{ borderColor: 'teal.500', color: 'black' }}  
+                    sx={{
+                      cursor: !isEditing ? 'not-allowed' : 'pointer',
+                    }}
                   />
                 </Box>
                 <Box>
@@ -162,6 +167,13 @@ function JobAccordion({ savedJobs, setSavedJobs }) {
                     name="job_title"
                     value={jobDetails.job_title || ''}
                     onChange={(e) => handleInputChange('job_title', e.target.value)}
+                    isDisabled={!isEditing}  
+                    color="black"  
+                    _disabled={{ color: 'black' }} 
+                    _focus={{ borderColor: 'teal.500', color: 'black' }}
+                    sx={{
+                      cursor: !isEditing ? 'not-allowed' : 'pointer',
+                    }}
                   />
                 </Box>
                 <Box>
@@ -170,18 +182,45 @@ function JobAccordion({ savedJobs, setSavedJobs }) {
                     name="city"
                     value={jobDetails.city || ''}
                     onChange={(e) => handleInputChange('city', e.target.value)}
+                    isDisabled={!isEditing}  
+                    color="black"  
+                    _disabled={{ color: 'black' }} 
+                    _focus={{ borderColor: 'teal.500', color: 'black' }}
+                    sx={{
+                      cursor: !isEditing ? 'not-allowed' : 'pointer',
+                    }}
                   />
                 </Box>
                 <Box>
                   <FormLabel>State:</FormLabel>
                   <Select
                     name="state"
-                    value={jobDetails?.state?.name || ''}  // Safely access state name
+                    value={jobDetails?.state?.name || ''}
                     onChange={(e) => handleInputChange('state', e.target.value)}
+                    isDisabled={!isEditing}
+                    placeholder="Select State"
+                    variant="outline"
+                    sx={{
+                      color: 'black !important',
+                      backgroundColor: !isEditing ? 'white' : 'transparent',
+                      borderColor: 'gray.300',
+                      padding: '8px',
+                      _focus: {
+                        borderColor: 'teal.500',
+                        color: 'black !important',
+                      },
+                      _hover: {
+                        color: 'black !important',
+                      },
+                      _disabled: {
+                        color: 'black !important',
+                        backgroundColor: 'white',
+                        cursor: 'not-allowed', 
+                      },
+                    }}
                   >
-                    <option value="">Select State</option>
                     {states.map((state) => (
-                      <option key={state.abbrev} value={state.name}>
+                      <option key={state.abbrev} value={state.name} style={{ color: 'black !important' }}>
                         {state.name}
                       </option>
                     ))}
@@ -200,12 +239,9 @@ function JobAccordion({ savedJobs, setSavedJobs }) {
               </Button>
             ) : (
               <Button variant="ghost" colorScheme="teal" onClick={() => setIsEditing(true)}>
-                Edit
+                Edit Job
               </Button>
             )}
-            <Button colorScheme="blue" onClick={onClose}>
-              Close
-            </Button>
           </ModalFooter>
         </ModalContent>
       </Modal>
