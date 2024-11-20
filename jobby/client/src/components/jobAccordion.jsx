@@ -20,6 +20,7 @@ import {
   AccordionButton,
   AccordionPanel,
   AccordionIcon,
+  Select,  // Import Select component
 } from '@chakra-ui/react';
 
 function JobAccordion({ savedJobs, setSavedJobs }) {
@@ -27,23 +28,51 @@ function JobAccordion({ savedJobs, setSavedJobs }) {
   const [isEditing, setIsEditing] = useState(false);
   const [selectedJobIndex, setSelectedJobIndex] = useState(null);
   const [jobDetails, setJobDetails] = useState(null);
+  const [states, setStates] = useState([]);
+
+  // Fetch the states list from the API on component mount
+  useEffect(() => {
+    async function fetchStates() {
+      try {
+        const response = await fetch('http://127.0.0.1:8000/api/states/');
+        if (response.ok) {
+          const data = await response.json();
+          setStates(data);
+        } else {
+          console.error('Failed to fetch states');
+        }
+      } catch (error) {
+        console.error('Error fetching states:', error);
+      }
+    }
+
+    fetchStates();
+  }, []);
 
   useEffect(() => {
     if (selectedJobIndex !== null) {
-      setJobDetails(savedJobs[selectedJobIndex]);
+      const job = savedJobs[selectedJobIndex];
+      setJobDetails({
+        ...job,
+        state: job.state || { abbrev: '', name: '' },
+      });
     }
   }, [savedJobs, selectedJobIndex]);
 
   const handleInputChange = (field, value) => {
     const updatedJobs = [...savedJobs];
+    const updatedJob = updatedJobs[selectedJobIndex];
+
     if (field === 'state') {
-      const updatedState = updatedJobs[selectedJobIndex].state || {};
-      updatedState.abbrev = value;
-      updatedJobs[selectedJobIndex].state = updatedState;
+      // Update state with selected value directly
+      updatedJob.state = states.find(state => state.name === value) || {};
     } else {
-      updatedJobs[selectedJobIndex][field] = value;
+      updatedJob[field] = value;
     }
+
+    updatedJobs[selectedJobIndex] = updatedJob;
     setSavedJobs(updatedJobs);
+    setJobDetails(updatedJob);  // Ensure jobDetails gets updated
   };
 
   const handleEditClick = (index) => {
@@ -66,7 +95,6 @@ function JobAccordion({ savedJobs, setSavedJobs }) {
           body: JSON.stringify(jobDetails),
         });
         console.log('Job details being saved:', jobDetails);
-        console.log('Saving job with ID:', jobDetails.id);
 
         if (!response.ok) {
           throw new Error('Failed to save changes.');
@@ -146,11 +174,18 @@ function JobAccordion({ savedJobs, setSavedJobs }) {
                 </Box>
                 <Box>
                   <FormLabel>State:</FormLabel>
-                    <Input
-                      name="state"
-                      value={jobDetails.state?.abbrev || ''}
-                      onChange={(e) => handleInputChange('state', e.target.value)}
-                    />
+                  <Select
+                    name="state"
+                    value={jobDetails?.state?.name || ''}  // Safely access state name
+                    onChange={(e) => handleInputChange('state', e.target.value)}
+                  >
+                    <option value="">Select State</option>
+                    {states.map((state) => (
+                      <option key={state.abbrev} value={state.name}>
+                        {state.name}
+                      </option>
+                    ))}
+                  </Select>
                 </Box>
               </Stack>
             )}
