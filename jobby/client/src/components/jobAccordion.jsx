@@ -230,18 +230,37 @@ function JobAccordion({ savedJobs, setSavedJobs }) {
             )}
           </ModalBody>
           <ModalFooter>
-            <Button colorScheme="red" onClick={handleDeleteJob} mr={3}>
-              Delete Job
+
+            <Button
+              colorScheme="teal"
+              mr={3}
+              onClick={() => {
+                if (jobDetails?.id) {
+                  const jobDetailsUrl = `http://127.0.0.1:8000/api/jobs/${jobDetails.id}`;
+                  window.location.href = jobDetailsUrl;
+                  console.log('Redirecting to job details:', jobDetailsUrl);
+                } else {
+                  console.error('Job ID is not available');
+                }
+              }}
+            >
+              View In Depth Job Details
             </Button>
+
             {isEditing ? (
               <Button colorScheme="teal" onClick={saveChangesToBackend}>
                 Save Changes
               </Button>
             ) : (
-              <Button variant="ghost" colorScheme="teal" onClick={() => setIsEditing(true)}>
+              <Button colorScheme="teal" onClick={() => setIsEditing(true)}>
                 Edit Job
               </Button>
             )}
+
+            <Button ml={10} colorScheme="red" onClick={handleDeleteJob} mr={3}>
+              Delete Job
+            </Button>
+            
           </ModalFooter>
         </ModalContent>
       </Modal>
