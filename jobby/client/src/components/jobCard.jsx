@@ -3,29 +3,13 @@ import {
   Box,
   Button,
   IconButton,
-  Modal,
-  ModalOverlay,
-  ModalContent,
-  ModalHeader,
-  ModalFooter,
-  ModalBody,
-  ModalCloseButton,
-  FormLabel,
-  useDisclosure,
-  Stack,
-  Text,
-  Select,
   Badge,
   Flex,
-  Input,
+  Text,
 } from '@chakra-ui/react';
 import { DeleteIcon } from '@chakra-ui/icons';
 
 function JobCard({ savedJobs, setSavedJobs }) {
-  const { isOpen, onOpen, onClose } = useDisclosure();
-  const [isEditing, setIsEditing] = useState(false);
-  const [selectedJobIndex, setSelectedJobIndex] = useState(null);
-  const [jobDetails, setJobDetails] = useState(null);
   const [states, setStates] = useState([]);
 
   useEffect(() => {
@@ -46,66 +30,8 @@ function JobCard({ savedJobs, setSavedJobs }) {
     fetchStates();
   }, []);
 
-  useEffect(() => {
-    if (selectedJobIndex !== null) {
-      const job = savedJobs[selectedJobIndex];
-      setJobDetails({
-        ...job,
-        state: job.state || { abbrev: '', name: '' },
-      });
-    }
-  }, [savedJobs, selectedJobIndex]);
-
-  const handleInputChange = (field, value) => {
-    const updatedJobs = [...savedJobs];
-    const updatedJob = updatedJobs[selectedJobIndex];
-
-    if (field === 'state') {
-      updatedJob.state = states.find((state) => state.name === value) || {};
-    } else {
-      updatedJob[field] = value;
-    }
-
-    updatedJobs[selectedJobIndex] = updatedJob;
-    setSavedJobs(updatedJobs);
-    setJobDetails(updatedJob);
-  };
-
-  const handleEditClick = (index) => {
-    setSelectedJobIndex(index);
-    setIsEditing(false);
-    onOpen();
-  };
-
-  const handleDeleteJob = () => {
-    setSavedJobs((prevJobs) => prevJobs.filter((_, index) => index !== selectedJobIndex));
-    onClose();
-  };
-
-  const saveChangesToBackend = async () => {
-    if (jobDetails?.id) {
-      try {
-        const response = await fetch(`http://127.0.0.1:8000/api/jobs/${jobDetails.id}/`, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(jobDetails),
-        });
-        console.log('Job details being saved:', jobDetails);
-
-        if (!response.ok) {
-          throw new Error('Failed to save changes.');
-        }
-
-        const updatedJob = await response.json();
-        setSavedJobs((prevJobs) =>
-          prevJobs.map((job) => (job.id === updatedJob.id ? updatedJob : job))
-        );
-      } catch (error) {
-        console.error('Error saving changes:', error);
-      }
-    }
-    setIsEditing(false);
-    onClose();
+  const handleDeleteJob = (index) => {
+    setSavedJobs((prevJobs) => prevJobs.filter((_, i) => i !== index));
   };
 
   return (
@@ -168,17 +94,11 @@ function JobCard({ savedJobs, setSavedJobs }) {
               >
                 View Job Details
               </Button>
-              <Button colorScheme="teal" onClick={() => handleEditClick(index)}>
-                Edit Job
-              </Button>
               <IconButton
                 aria-label="Delete job"
                 icon={<DeleteIcon />}
                 colorScheme="red"
-                onClick={() => {
-                  setSelectedJobIndex(index);
-                  handleDeleteJob();
-                }}
+                onClick={() => handleDeleteJob(index)}
               />
             </Flex>
           </Box>
@@ -186,75 +106,6 @@ function JobCard({ savedJobs, setSavedJobs }) {
       ) : (
         <Text>No saved jobs available.</Text>
       )}
-
-      <Modal isOpen={isOpen} onClose={onClose} size="lg">
-        <ModalOverlay />
-        <ModalContent>
-          <ModalHeader textAlign="center">
-            {isEditing ? 'Edit Job Details' : 'Job Details'}
-          </ModalHeader>
-          <ModalCloseButton />
-          <ModalBody>
-            {jobDetails && (
-              <Stack spacing={4}>
-                <Box>
-                  <FormLabel>Company:</FormLabel>
-                  <Input
-                    name="company"
-                    value={jobDetails.company || ''}
-                    onChange={(e) => handleInputChange('company', e.target.value)}
-                    isDisabled={!isEditing}
-                  />
-                </Box>
-                <Box>
-                  <FormLabel>Job Title:</FormLabel>
-                  <Input
-                    name="job_title"
-                    value={jobDetails.job_title || ''}
-                    onChange={(e) => handleInputChange('job_title', e.target.value)}
-                    isDisabled={!isEditing}
-                  />
-                </Box>
-                <Box>
-                  <FormLabel>City:</FormLabel>
-                  <Input
-                    name="city"
-                    value={jobDetails.city || ''}
-                    onChange={(e) => handleInputChange('city', e.target.value)}
-                    isDisabled={!isEditing}
-                  />
-                </Box>
-                <Box>
-                  <FormLabel>State:</FormLabel>
-                  <Select
-                    name="state"
-                    value={jobDetails?.state?.name || ''}
-                    onChange={(e) => handleInputChange('state', e.target.value)}
-                    isDisabled={!isEditing}
-                  >
-                    {states.map((state) => (
-                      <option key={state.abbrev} value={state.name}>
-                        {state.name}
-                      </option>
-                    ))}
-                  </Select>
-                </Box>
-              </Stack>
-            )}
-          </ModalBody>
-          <ModalFooter>
-            {isEditing ? (
-              <Button colorScheme="teal" onClick={saveChangesToBackend}>
-                Save Changes
-              </Button>
-            ) : (
-              <Button colorScheme="teal" onClick={() => setIsEditing(true)}>
-                Edit Job
-              </Button>
-            )}
-          </ModalFooter>
-        </ModalContent>
-      </Modal>
     </Box>
   );
 }
