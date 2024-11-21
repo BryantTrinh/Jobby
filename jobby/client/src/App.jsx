@@ -14,7 +14,7 @@ import {
 } from "@chakra-ui/react";
 import logo from './assets/Logo.svg';
 import JobScraper from './components/jobScraper';
-import JobAccordion from './components/jobAccordion';
+import JobCard from './components/jobCard';
 import Pagination from './components/pagination';
 import './App.css';
 

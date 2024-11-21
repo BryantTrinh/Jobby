@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Select, Text, Flex, Stack } from "@chakra-ui/react";
-import JobAccordion from '../components/jobAccordion';
+import JobCard from '../components/jobCard';
 import Pagination from '../components/pagination';
 
 function SavedJobs() {
@@ -101,8 +101,8 @@ function SavedJobs() {
         onPageChange={handlePageChange} 
       />
 
-      {/* JobAccordion for displaying current jobs */}
-      <JobAccordion savedJobs={currentJobs} setSavedJobs={setSavedJobs} />
+      {/* JobCard for displaying current jobs */}
+      <JobCard savedJobs={currentJobs} setSavedJobs={setSavedJobs} />
     </Flex>
   );
 }

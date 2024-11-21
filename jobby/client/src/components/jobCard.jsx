@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import {
   Box,
-  Input,
   Button,
   Modal,
   ModalOverlay,
@@ -14,16 +13,12 @@ import {
   useDisclosure,
   Stack,
   Text,
-  Accordion,
-  AccordionItem,
-  AccordionButton,
-  AccordionPanel,
-  AccordionIcon,
-  chakra,
   Select,
+  Badge,
+  Flex,
 } from '@chakra-ui/react';
 
-function JobAccordion({ savedJobs, setSavedJobs }) {
+function JobCard({ savedJobs, setSavedJobs }) {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [isEditing, setIsEditing] = useState(false);
   const [selectedJobIndex, setSelectedJobIndex] = useState(null);
@@ -63,7 +58,7 @@ function JobAccordion({ savedJobs, setSavedJobs }) {
     const updatedJob = updatedJobs[selectedJobIndex];
 
     if (field === 'state') {
-      updatedJob.state = states.find(state => state.name === value) || {};
+      updatedJob.state = states.find((state) => state.name === value) || {};
     } else {
       updatedJob[field] = value;
     }
@@ -112,33 +107,66 @@ function JobAccordion({ savedJobs, setSavedJobs }) {
 
   return (
     <Box width="800px" maxWidth="800px" mb="20px" mt="10">
-      <Accordion fontFamily="Verdana" allowMultiple>
-        {savedJobs && savedJobs.length > 0 ? (
-          savedJobs.map((job, index) => (
-            <AccordionItem key={index}>
-              <h2>
-                <AccordionButton
-                  _expanded={{ bg: 'tomato', color: 'white' }}
-                  onClick={() => handleEditClick(index)}
-                >
-                  <Box as="span" flex="1" textAlign="left">
-                    <Text fontWeight="bold">{job.company}:</Text>
-                    <Text>{job.job_title}</Text>
-                  </Box>
-                  <AccordionIcon />
-                </AccordionButton>
-              </h2>
-            </AccordionItem>
-          ))
-        ) : (
-          <Text>No saved jobs available.</Text>
-        )}
-      </Accordion>
+      {savedJobs && savedJobs.length > 0 ? (
+        savedJobs.map((job, index) => (
+          <Box
+            key={index}
+            border="1px solid #E2E8F0"
+            borderRadius="md"
+            p={4}
+            mb={4}
+            backgroundColor="white"
+            boxShadow="sm"
+          >
+            <Flex justifyContent="space-between" alignItems="center" mb={3}>
+              <Text fontSize="xl" fontWeight="bold">
+                {job.job_title}
+              </Text>
+              <Badge colorScheme="green" fontSize="md"> 
+                <Text textAlign="center"> Salary: </Text>
+                  {job.salary_start && job.salary_end
+                  ? `$${job.salary_start.toLocaleString()} - $${job.salary_end.toLocaleString()}`
+                  : job.salary_start
+                  ? `$${job.salary_start.toLocaleString()}`
+                  : job.salary_end
+                  ? `$${job.salary_end.toLocaleString()}`
+                  : "Salary not specified"}
+              </Badge>
+            </Flex>
+            <Flex justifyContent="space-between" mb={2}>
+              <Text>Company: {job.company}</Text>
+              <Text>City: {job.city}</Text>
+            </Flex>
+            <Flex justifyContent="space-between" mb={2}>
+              <Text>State: {job.state?.name || "N/A"}</Text>
+              <Text>Applied: {job.applied || "Not applied yet"}</Text>
+            </Flex>
+            <Flex justifyContent="space-between">
+              <Button
+                colorScheme="blue"
+                onClick={() => {
+                  const jobDetailsUrl = `http://127.0.0.1:8000/api/jobs/${job.id}`;
+                  window.location.href = jobDetailsUrl;
+                }}
+              >
+                View Job Details
+              </Button>
+              <Button colorScheme="teal" onClick={() => handleEditClick(index)}>
+                Edit Job
+              </Button>
+              <Button colorScheme="red" onClick={() => handleDeleteJob()}>
+                Delete Job
+              </Button>
+            </Flex>
+          </Box>
+        ))
+      ) : (
+        <Text>No saved jobs available.</Text>
+      )}
 
-      {/* Modal for viewing/editing jobs */}
       <Modal isOpen={isOpen} onClose={onClose} size="lg">
         <ModalOverlay />
-        <ModalContent maxWidth="900px">
+        <ModalContent>
           <ModalHeader textAlign="center">
             {isEditing ? 'Edit Job Details' : 'Job Details'}
           </ModalHeader>
@@ -152,13 +180,7 @@ function JobAccordion({ savedJobs, setSavedJobs }) {
                     name="company"
                     value={jobDetails.company || ''}
                     onChange={(e) => handleInputChange('company', e.target.value)}
-                    isDisabled={!isEditing}  
-                    color="black"  
-                    _disabled={{ color: 'black' }}  
-                    _focus={{ borderColor: 'teal.500', color: 'black' }}  
-                    sx={{
-                      cursor: !isEditing ? 'not-allowed' : 'pointer',
-                    }}
+                    isDisabled={!isEditing}
                   />
                 </Box>
                 <Box>
@@ -167,13 +189,7 @@ function JobAccordion({ savedJobs, setSavedJobs }) {
                     name="job_title"
                     value={jobDetails.job_title || ''}
                     onChange={(e) => handleInputChange('job_title', e.target.value)}
-                    isDisabled={!isEditing}  
-                    color="black"  
-                    _disabled={{ color: 'black' }} 
-                    _focus={{ borderColor: 'teal.500', color: 'black' }}
-                    sx={{
-                      cursor: !isEditing ? 'not-allowed' : 'pointer',
-                    }}
+                    isDisabled={!isEditing}
                   />
                 </Box>
                 <Box>
@@ -182,13 +198,7 @@ function JobAccordion({ savedJobs, setSavedJobs }) {
                     name="city"
                     value={jobDetails.city || ''}
                     onChange={(e) => handleInputChange('city', e.target.value)}
-                    isDisabled={!isEditing}  
-                    color="black"  
-                    _disabled={{ color: 'black' }} 
-                    _focus={{ borderColor: 'teal.500', color: 'black' }}
-                    sx={{
-                      cursor: !isEditing ? 'not-allowed' : 'pointer',
-                    }}
+                    isDisabled={!isEditing}
                   />
                 </Box>
                 <Box>
@@ -198,29 +208,9 @@ function JobAccordion({ savedJobs, setSavedJobs }) {
                     value={jobDetails?.state?.name || ''}
                     onChange={(e) => handleInputChange('state', e.target.value)}
                     isDisabled={!isEditing}
-                    placeholder="Select State"
-                    variant="outline"
-                    sx={{
-                      color: 'black !important',
-                      backgroundColor: !isEditing ? 'white' : 'transparent',
-                      borderColor: 'gray.300',
-                      padding: '8px',
-                      _focus: {
-                        borderColor: 'teal.500',
-                        color: 'black !important',
-                      },
-                      _hover: {
-                        color: 'black !important',
-                      },
-                      _disabled: {
-                        color: 'black !important',
-                        backgroundColor: 'white',
-                        cursor: 'not-allowed', 
-                      },
-                    }}
                   >
                     {states.map((state) => (
-                      <option key={state.abbrev} value={state.name} style={{ color: 'black !important' }}>
+                      <option key={state.abbrev} value={state.name}>
                         {state.name}
                       </option>
                     ))}
@@ -230,23 +220,6 @@ function JobAccordion({ savedJobs, setSavedJobs }) {
             )}
           </ModalBody>
           <ModalFooter>
-
-            <Button
-              colorScheme="teal"
-              mr={3}
-              onClick={() => {
-                if (jobDetails?.id) {
-                  const jobDetailsUrl = `http://127.0.0.1:8000/api/jobs/${jobDetails.id}`;
-                  window.location.href = jobDetailsUrl;
-                  console.log('Redirecting to job details:', jobDetailsUrl);
-                } else {
-                  console.error('Job ID is not available');
-                }
-              }}
-            >
-              View In Depth Job Details
-            </Button>
-
             {isEditing ? (
               <Button colorScheme="teal" onClick={saveChangesToBackend}>
                 Save Changes
@@ -256,11 +229,9 @@ function JobAccordion({ savedJobs, setSavedJobs }) {
                 Edit Job
               </Button>
             )}
-
-            <Button ml={10} colorScheme="red" onClick={handleDeleteJob} mr={3}>
+            <Button ml={3} colorScheme="red" onClick={handleDeleteJob}>
               Delete Job
             </Button>
-            
           </ModalFooter>
         </ModalContent>
       </Modal>
@@ -268,4 +239,4 @@ function JobAccordion({ savedJobs, setSavedJobs }) {
   );
 }
 
-export default JobAccordion;
+export default JobCard;
