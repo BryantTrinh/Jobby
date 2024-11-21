@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import {
   Box,
   Button,
+  IconButton,
   Modal,
   ModalOverlay,
   ModalContent,
@@ -16,7 +17,9 @@ import {
   Select,
   Badge,
   Flex,
+  Input,
 } from '@chakra-ui/react';
+import { DeleteIcon } from '@chakra-ui/icons';
 
 function JobCard({ savedJobs, setSavedJobs }) {
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -122,15 +125,15 @@ function JobCard({ savedJobs, setSavedJobs }) {
               <Text fontSize="xl" fontWeight="bold">
                 {job.job_title}
               </Text>
-              <Badge colorScheme="green" fontSize="md"> 
+              <Badge colorScheme="green" fontSize="md">
                 <Text textAlign="center"> Salary: </Text>
-                  {job.salary_start && job.salary_end
+                {job.salary_start && job.salary_end
                   ? `$${job.salary_start.toLocaleString()} - $${job.salary_end.toLocaleString()}`
                   : job.salary_start
                   ? `$${job.salary_start.toLocaleString()}`
                   : job.salary_end
                   ? `$${job.salary_end.toLocaleString()}`
-                  : "Salary not specified"}
+                  : 'Salary not specified'}
               </Badge>
             </Flex>
             <Flex justifyContent="space-between" mb={2}>
@@ -138,8 +141,8 @@ function JobCard({ savedJobs, setSavedJobs }) {
               <Text>City: {job.city}</Text>
             </Flex>
             <Flex justifyContent="space-between" mb={2}>
-              <Text>State: {job.state?.name || "N/A"}</Text>
-              <Text>Applied: {job.applied || "Not applied yet"}</Text>
+              <Text>State: {job.state?.name || 'N/A'}</Text>
+              <Text>Applied: {job.applied || 'Not applied yet'}</Text>
             </Flex>
             <Flex justifyContent="space-between">
               <Button
@@ -154,9 +157,15 @@ function JobCard({ savedJobs, setSavedJobs }) {
               <Button colorScheme="teal" onClick={() => handleEditClick(index)}>
                 Edit Job
               </Button>
-              <Button colorScheme="red" onClick={() => handleDeleteJob()}>
-                Delete Job
-              </Button>
+              <IconButton
+                aria-label="Delete job"
+                icon={<DeleteIcon />}
+                colorScheme="red"
+                onClick={() => {
+                  setSelectedJobIndex(index);
+                  handleDeleteJob();
+                }}
+              />
             </Flex>
           </Box>
         ))
@@ -229,9 +238,6 @@ function JobCard({ savedJobs, setSavedJobs }) {
                 Edit Job
               </Button>
             )}
-            <Button ml={3} colorScheme="red" onClick={handleDeleteJob}>
-              Delete Job
-            </Button>
           </ModalFooter>
         </ModalContent>
       </Modal>
