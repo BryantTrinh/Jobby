@@ -126,14 +126,28 @@ function JobCard({ savedJobs, setSavedJobs }) {
                 {job.job_title}
               </Text>
               <Badge colorScheme="green" fontSize="md">
-                <Text textAlign="center"> Salary: </Text>
+                <Text textAlign="center">
+                  {job.salary_start && job.salary_end
+                    ? job.salary_start.toLocaleString().includes(",") || job.salary_end.toLocaleString().includes(",")
+                      ? "Salary:"
+                      : "Hourly:"
+                    : job.salary_start
+                    ? job.salary_start.toLocaleString().includes(",")
+                      ? "Salary:"
+                      : "Hourly:"
+                    : job.salary_end
+                    ? job.salary_end.toLocaleString().includes(",")
+                      ? "Salary:"
+                      : "Hourly:"
+                    : "Salary not specified"}
+                </Text>
                 {job.salary_start && job.salary_end
                   ? `$${job.salary_start.toLocaleString()} - $${job.salary_end.toLocaleString()}`
                   : job.salary_start
                   ? `$${job.salary_start.toLocaleString()}`
                   : job.salary_end
                   ? `$${job.salary_end.toLocaleString()}`
-                  : 'Salary not specified'}
+                  : ""}
               </Badge>
             </Flex>
             <Flex justifyContent="space-between" mb={2}>
