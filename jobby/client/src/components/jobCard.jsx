@@ -129,8 +129,6 @@ return (
     )}
   </Box>
 );
-
-
 }
 
 export default JobCard;
