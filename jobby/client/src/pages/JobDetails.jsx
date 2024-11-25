@@ -14,27 +14,25 @@ function JobDetails() {
         const response = await fetch(`http://127.0.0.1:8000/api/jobs/${jobid}`);
         if (response.ok) {
           const data = await response.json();
-          console.log("API Response Data:", data);
+          console.log('API Response Data:', data);
           if (!data.description || !data.requirements) {
-            console.warn("Missing fields in API response:", {
+            console.warn('Missing fields in API response:', {
               description: data.description,
               requirements: data.requirements,
             });
           }
-
           setJob(data);
         } else {
-          console.error("API Error:", response.statusText);
+          console.error('API Error:', response.statusText);
           setError('Failed to fetch job details.');
         }
       } catch (err) {
-        console.error("Fetch Error:", err);
+        console.error('Fetch Error:', err);
         setError('An error occurred while fetching job details.');
       } finally {
         setLoading(false);
       }
     }
-
     fetchJobDetails();
   }, [jobid]);
 
@@ -71,18 +69,19 @@ function JobDetails() {
       <Badge colorScheme="green" fontSize="md">
         <Text textAlign="center">
           {job.salary_start && job.salary_end
-            ? job.salary_start.toLocaleString().includes(",") || job.salary_end.toLocaleString().includes(",")
-              ? "Salary:"
-              : "Hourly:"
+            ? job.salary_start.toLocaleString().includes(',') ||
+              job.salary_end.toLocaleString().includes(',')
+              ? 'Salary:'
+              : 'Hourly:'
             : job.salary_start
-            ? job.salary_start.toLocaleString().includes(",")
-              ? "Salary:"
-              : "Hourly:"
+            ? job.salary_start.toLocaleString().includes(',')
+              ? 'Salary:'
+              : 'Hourly:'
             : job.salary_end
-            ? job.salary_end.toLocaleString().includes(",")
-              ? "Salary:"
-              : "Hourly:"
-            : "Salary not specified"}
+            ? job.salary_end.toLocaleString().includes(',')
+              ? 'Salary:'
+              : 'Hourly:'
+            : 'Salary not specified'}
         </Text>
         {job.salary_start && job.salary_end
           ? `$${job.salary_start.toLocaleString()} - $${job.salary_end.toLocaleString()}`
@@ -90,7 +89,7 @@ function JobDetails() {
           ? `$${job.salary_start.toLocaleString()}`
           : job.salary_end
           ? `$${job.salary_end.toLocaleString()}`
-          : ""}
+          : ''}
       </Badge>
       <Text fontSize="lg" mb={2}>
         <strong>Company:</strong> {job.company || 'No company specified'}
@@ -101,6 +100,11 @@ function JobDetails() {
       <Text fontSize="lg" mb={2}>
         <strong>Applied:</strong> {job.applied || 'Not applied yet'}
       </Text>
+
+      {/* Description Section */}
+      <Text fontSize="lg" mb={2}>
+        <strong>Description:</strong>
+      </Text>
       <Box
         overflowY="scroll"
         mb={4}
@@ -108,12 +112,16 @@ function JobDetails() {
         border="1px solid #CBD5E0"
         borderRadius="md"
         resize="vertical"
-        minHeight="300px"
+        height="150px"
+        minHeight="100px"
       >
-        <Text fontSize="lg">
-          <strong>Description:</strong> {job.job_description || 'No description available.'}
-        </Text>
+        <Text fontSize="lg">{job.job_description || 'No description available.'}</Text>
       </Box>
+
+      {/* Requirements Section */}
+      <Text fontSize="lg" mb={2}>
+        <strong>Requirements:</strong>
+      </Text>
       <Box
         overflowY="scroll"
         mb={4}
@@ -121,15 +129,20 @@ function JobDetails() {
         border="1px solid #CBD5E0"
         borderRadius="md"
         resize="vertical"
-        minHeight="200px"
+        height="100px"
+        minHeight="80px"
       >
-        <Text fontSize="lg">
-          <strong>Requirements:</strong> {job.job_requirements || 'No requirements listed.'}
-        </Text>
+        <Text fontSize="lg">{job.job_requirements || 'No requirements listed.'}</Text>
       </Box>
+
       <Text fontSize="lg">
         <strong>Job URL:</strong>{' '}
-        <a href={job.url} target="_blank" rel="noopener noreferrer" style={{ color: 'blue', textDecoration: 'underline' }}>
+        <a
+          href={job.url}
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{ color: 'blue', textDecoration: 'underline' }}
+        >
           {job.url || 'No URL available'}
         </a>
       </Text>
