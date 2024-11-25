@@ -55,34 +55,43 @@ function JobDetails() {
   }
 
   return (
-    <Box maxWidth="800px" mx="auto" p={6} border="1px solid #E2E8F0" borderRadius="md" boxShadow="md" mt={10}>
+    <Box
+      maxWidth="800px"
+      mx="auto"
+      p={6}
+      border="1px solid #E2E8F0"
+      borderRadius="md"
+      boxShadow="md"
+      mt={10}
+      overflow="hidden"
+    >
       <Text fontSize="2xl" fontWeight="bold" mb={4}>
         {job.job_title || 'No title available'}
       </Text>
-              <Badge colorScheme="green" fontSize="md">
-                <Text textAlign="center">
-                  {job.salary_start && job.salary_end
-                    ? job.salary_start.toLocaleString().includes(",") || job.salary_end.toLocaleString().includes(",")
-                      ? "Salary:"
-                      : "Hourly:"
-                    : job.salary_start
-                    ? job.salary_start.toLocaleString().includes(",")
-                      ? "Salary:"
-                      : "Hourly:"
-                    : job.salary_end
-                    ? job.salary_end.toLocaleString().includes(",")
-                      ? "Salary:"
-                      : "Hourly:"
-                    : "Salary not specified"}
-                </Text>
-                {job.salary_start && job.salary_end
-                  ? `$${job.salary_start.toLocaleString()} - $${job.salary_end.toLocaleString()}`
-                  : job.salary_start
-                  ? `$${job.salary_start.toLocaleString()}`
-                  : job.salary_end
-                  ? `$${job.salary_end.toLocaleString()}`
-                  : ""}
-              </Badge>
+      <Badge colorScheme="green" fontSize="md">
+        <Text textAlign="center">
+          {job.salary_start && job.salary_end
+            ? job.salary_start.toLocaleString().includes(",") || job.salary_end.toLocaleString().includes(",")
+              ? "Salary:"
+              : "Hourly:"
+            : job.salary_start
+            ? job.salary_start.toLocaleString().includes(",")
+              ? "Salary:"
+              : "Hourly:"
+            : job.salary_end
+            ? job.salary_end.toLocaleString().includes(",")
+              ? "Salary:"
+              : "Hourly:"
+            : "Salary not specified"}
+        </Text>
+        {job.salary_start && job.salary_end
+          ? `$${job.salary_start.toLocaleString()} - $${job.salary_end.toLocaleString()}`
+          : job.salary_start
+          ? `$${job.salary_start.toLocaleString()}`
+          : job.salary_end
+          ? `$${job.salary_end.toLocaleString()}`
+          : ""}
+      </Badge>
       <Text fontSize="lg" mb={2}>
         <strong>Company:</strong> {job.company || 'No company specified'}
       </Text>
@@ -92,12 +101,32 @@ function JobDetails() {
       <Text fontSize="lg" mb={2}>
         <strong>Applied:</strong> {job.applied || 'Not applied yet'}
       </Text>
-      <Text fontSize="lg" mb={4}>
-        <strong>Description:</strong> {job.job_description || 'No description available.'}
-      </Text>
-      <Text fontSize="lg" mb={4}>
-        <strong>Requirements:</strong> {job.job_requirements || 'No requirements listed.'}
-      </Text>
+      <Box
+        overflowY="scroll"
+        mb={4}
+        p={2}
+        border="1px solid #CBD5E0"
+        borderRadius="md"
+        resize="vertical"
+        minHeight="300px"
+      >
+        <Text fontSize="lg">
+          <strong>Description:</strong> {job.job_description || 'No description available.'}
+        </Text>
+      </Box>
+      <Box
+        overflowY="scroll"
+        mb={4}
+        p={2}
+        border="1px solid #CBD5E0"
+        borderRadius="md"
+        resize="vertical"
+        minHeight="200px"
+      >
+        <Text fontSize="lg">
+          <strong>Requirements:</strong> {job.job_requirements || 'No requirements listed.'}
+        </Text>
+      </Box>
       <Text fontSize="lg">
         <strong>Job URL:</strong>{' '}
         <a href={job.url} target="_blank" rel="noopener noreferrer" style={{ color: 'blue', textDecoration: 'underline' }}>
