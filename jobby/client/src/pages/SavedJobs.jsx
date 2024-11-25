@@ -92,7 +92,7 @@ return (
     />
 
     {/* Grid Layout for JobCards */}
-    <Flex justifyContent="center" width="100%" mt={4}>
+    <Flex justifyContent="center" width="100%" mt={4} mr={450}>
       <Grid
         templateColumns="repeat(2, 1fr)"
         gap={6}

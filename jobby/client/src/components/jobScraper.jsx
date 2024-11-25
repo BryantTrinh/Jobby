@@ -92,12 +92,13 @@ useEffect(() => {
       if (!response.ok) throw new Error(`Failed to fetch data: ${response.status}`);
 
       const data = await response.json();
+      console.log("Fetched Job Data:", data);
       console.log("State abbreviation:", data.state);
 
     setJobTitle(data.job_title || '');
     setCompany(data.company || '');
     setJobDescription(data.job_description || '');
-    setSelectedState(data.state || '');
+    setSelectedState(data.state?.toUpperCase() === "REMOTE" || !data.state ? "REM" : data.state);
     setCity(data.city || '');
     setSalaryStart(data.salary_start || null);
     setSalaryEnd(data.salary_end || null);
@@ -120,17 +121,22 @@ useEffect(() => {
   
   // Code for saving to DB
 const handleConfirmation = async () => {
-  if (!selectedState) {
-    console.error("State is missing or invalid:", selectedState);
-    toast({
-      title: "Failed to save job, job could already be saved. If not, please try again!",
-      description: "State is missing or invalid.",
-      status: "error",
-      duration: 5000,
-      isClosable: true,
-    });
-    return;
-  }
+const normalizedState =
+  selectedState.toLowerCase() === "remote" || selectedState.toUpperCase() === "REM"
+    ? "REM"
+    : selectedState;
+
+      if (!selectedState) {
+        console.error("State is missing or invalid:", selectedState);
+        toast({
+          title: "Failed to save job, job could already be saved. If not, please try again!",
+          description: "State is missing or invalid.",
+          status: "error",
+          duration: 5000,
+          isClosable: true,
+        });
+        return;
+      }
 
   const newJob = {
     job_title: jobTitle,
@@ -142,7 +148,7 @@ const handleConfirmation = async () => {
     salary_end: salaryEnd || null,
     url: url,
     city: city,
-    state: selectedState,
+    state: normalizedState,
   };
 
     console.log("Saving Job Data:", newJob);
