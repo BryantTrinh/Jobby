@@ -15,12 +15,6 @@ function JobDetails() {
         if (response.ok) {
           const data = await response.json();
           console.log('API Response Data:', data);
-          if (!data.description || !data.requirements) {
-            console.warn('Missing fields in API response:', {
-              description: data.description,
-              requirements: data.requirements,
-            });
-          }
           setJob(data);
         } else {
           console.error('API Error:', response.statusText);
@@ -63,89 +57,109 @@ function JobDetails() {
       mt={10}
       overflow="hidden"
     >
-      <Text fontSize="2xl" fontWeight="bold" mb={4}>
-        {job.job_title || 'No title available'}
-      </Text>
-      <Badge colorScheme="green" fontSize="md">
-        <Text textAlign="center">
-          {job.salary_start && job.salary_end
-            ? job.salary_start.toLocaleString().includes(',') ||
-              job.salary_end.toLocaleString().includes(',')
-              ? 'Salary:'
-              : 'Hourly:'
-            : job.salary_start
-            ? job.salary_start.toLocaleString().includes(',')
-              ? 'Salary:'
-              : 'Hourly:'
-            : job.salary_end
-            ? job.salary_end.toLocaleString().includes(',')
-              ? 'Salary:'
-              : 'Hourly:'
-            : 'Salary not specified'}
+    <Flex justifyContent="space-between" alignItems="flex-start" mb={10}>
+      <Flex flexDirection="column" alignItems="flex-start" flex="1">
+        <Text fontSize="2xl" fontWeight="bold" mb={5}>
+          {job.job_title || 'No title available'}
         </Text>
+        <Text fontSize="lg" mb={5}>
+          <strong>Company:</strong> {job.company || 'No company specified'}
+        </Text>
+        <Text fontSize="lg" mb={5}>
+          {job.state?.name?.toLowerCase() === 'remote' ? (
+            <Text fontSize="lg" mb={5}>
+              <strong>Location:</strong> Remote
+            </Text>
+          ) : (
+            <>
+              <Text fontSize="lg" mb={2}>
+                <strong>City:</strong> {job.city || 'N/A'}
+              </Text>
+              <Text fontSize="lg" mb={2}>
+                <strong>State:</strong> {job.state?.name || 'N/A'}
+              </Text>
+            </>
+          )}
+      </Text>
+    </Flex>
+  <Flex flexDirection="column" alignItems="flex-end" ml={4}>
+    <Text fontSize="md" fontWeight="bold" mb={2}>
+      Date Applied:
+    </Text>
+    <Text>{job.applied || 'Not applied yet'}</Text>
+    <Badge colorScheme="green" fontSize="md" mt={5}>
+      <Text textAlign="center">
         {job.salary_start && job.salary_end
-          ? `$${job.salary_start.toLocaleString()} - $${job.salary_end.toLocaleString()}`
+          ? job.salary_start.toLocaleString().includes(',') ||
+            job.salary_end.toLocaleString().includes(',')
+            ? 'Salary:'
+            : 'Hourly:'
           : job.salary_start
-          ? `$${job.salary_start.toLocaleString()}`
+          ? job.salary_start.toLocaleString().includes(',')
+            ? 'Salary:'
+            : 'Hourly:'
           : job.salary_end
-          ? `$${job.salary_end.toLocaleString()}`
-          : ''}
-      </Badge>
-      <Text fontSize="lg" mb={2}>
-        <strong>Company:</strong> {job.company || 'No company specified'}
+          ? job.salary_end.toLocaleString().includes(',')
+            ? 'Salary:'
+            : 'Hourly:'
+          : 'Salary not specified'}
       </Text>
-      <Text fontSize="lg" mb={2}>
-        <strong>Location:</strong> {job.city || 'N/A'}, {job.state?.name || 'N/A'}
-      </Text>
-      <Text fontSize="lg" mb={2}>
-        <strong>Applied:</strong> {job.applied || 'Not applied yet'}
-      </Text>
+      {job.salary_start && job.salary_end
+        ? `$${job.salary_start.toLocaleString()} - $${job.salary_end.toLocaleString()}`
+        : job.salary_start
+        ? `$${job.salary_start.toLocaleString()}`
+        : job.salary_end
+        ? `$${job.salary_end.toLocaleString()}`
+        : ''}
+    </Badge>
+  </Flex>
+</Flex>
 
-      {/* Description Section */}
-      <Text fontSize="lg" mb={2}>
-        <strong>Description:</strong>
-      </Text>
-      <Box
-        overflowY="scroll"
-        mb={4}
-        p={2}
-        border="1px solid #CBD5E0"
-        borderRadius="md"
-        resize="vertical"
-        height="150px"
-        minHeight="100px"
-      >
-        <Text fontSize="lg">{job.job_description || 'No description available.'}</Text>
-      </Box>
+<Text fontSize="lg" mb={2}>
+  <strong>Description:</strong>
+</Text>
 
-      {/* Requirements Section */}
-      <Text fontSize="lg" mb={2}>
-        <strong>Requirements:</strong>
-      </Text>
-      <Box
-        overflowY="scroll"
-        mb={4}
-        p={2}
-        border="1px solid #CBD5E0"
-        borderRadius="md"
-        resize="vertical"
-        height="100px"
-        minHeight="80px"
-      >
-        <Text fontSize="lg">{job.job_requirements || 'No requirements listed.'}</Text>
-      </Box>
+<Box
+  overflowY="scroll"
+  mb={3}
+  p={2}
+  border="1px solid #CBD5E0"
+  borderRadius="md"
+  resize="vertical"
+  height="150px"
+  minHeight="100px"
+>
+  <Text fontSize="lg">{job.job_description || 'No description available.'}</Text>
+</Box>
 
-      <Text fontSize="lg">
-        <strong>Job URL:</strong>{' '}
-        <a
-          href={job.url}
-          target="_blank"
-          rel="noopener noreferrer"
-          style={{ color: 'blue', textDecoration: 'underline' }}
-        >
-          {job.url || 'No URL available'}
-        </a>
-      </Text>
+<Text fontSize="lg" mb={2}>
+  <strong>Requirements:</strong>
+</Text>
+<Box
+  overflowY="scroll"
+  mb={3}
+  p={2}
+  border="1px solid #CBD5E0"
+  borderRadius="md"
+  resize="vertical"
+  height="100px"
+  minHeight="80px"
+>
+  <Text fontSize="lg">{job.job_requirements || 'No requirements listed.'}</Text>
+</Box>
+
+<Text fontSize="lg" mb={2}>
+  <strong>Job URL:</strong>{' '}
+  <a
+    href={job.url}
+    target="_blank"
+    rel="noopener noreferrer"
+    style={{ color: 'blue', textDecoration: 'underline' }}
+  >
+    {job.url || 'No URL available'}
+  </a>
+</Text>
+
     </Box>
   );
 }
