@@ -104,7 +104,7 @@ function App() {
         direction="column"
       >
         {/* Website Logo */}
-        <Stack align="center" mb={4}>
+        {/* <Stack align="center" mb={4}>
           <Link to="/">
           <Image
             src={logo}
@@ -114,7 +114,7 @@ function App() {
             cursor="pointer"
           />
         </Link>
-      </Stack>
+      </Stack> */}
 
         {/* Page URL Routes */}
         <Routes>

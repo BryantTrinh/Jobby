@@ -1,16 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import {
   Box,
-  Button,
   IconButton,
   Badge,
   Flex,
   Text,
 } from '@chakra-ui/react';
 import { DeleteIcon } from '@chakra-ui/icons';
+import { useNavigate } from 'react-router-dom';
 
 function JobCard({ savedJobs, setSavedJobs }) {
   const [states, setStates] = useState([]);
+  const navigate = useNavigate();
 
   useEffect(() => {
     async function fetchStates() {
@@ -48,7 +49,14 @@ function JobCard({ savedJobs, setSavedJobs }) {
             boxShadow="sm"
           >
             <Flex justifyContent="space-between" alignItems="center" mb={3}>
-              <Text fontSize="xl" fontWeight="bold">
+              <Text
+                fontSize="xl"
+                fontWeight="bold"
+                color="blue.500"
+                textDecoration="underline"
+                cursor="pointer"
+                onClick={() => navigate(`/jobby/job/${job.id}`)}
+              >
                 {job.job_title}
               </Text>
               <Badge colorScheme="green" fontSize="md">
@@ -84,16 +92,7 @@ function JobCard({ savedJobs, setSavedJobs }) {
               <Text>State: {job.state?.name || 'N/A'}</Text>
               <Text>Applied: {job.applied || 'Not applied yet'}</Text>
             </Flex>
-            <Flex justifyContent="space-between">
-              <Button
-                colorScheme="blue"
-                onClick={() => {
-                  const jobDetailsUrl = `http://127.0.0.1:8000/api/jobs/${job.id}`;
-                  window.location.href = jobDetailsUrl;
-                }}
-              >
-                View Job Details
-              </Button>
+            <Flex justifyContent="flex-end">
               <IconButton
                 aria-label="Delete job"
                 icon={<DeleteIcon />}

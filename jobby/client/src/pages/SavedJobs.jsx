@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Select, Text, Flex, Stack } from "@chakra-ui/react";
+import { Select, Text, Flex, Stack, Grid } from "@chakra-ui/react";
 import JobCard from '../components/jobCard';
 import Pagination from '../components/pagination';
 
@@ -14,7 +14,7 @@ function SavedJobs() {
   useEffect(() => {
     const fetchSavedJobs = async () => {
       try {
-        const response = await fetch(`http://127.0.0.1:8000/api/jobs`);
+        const response = await fetch('http://127.0.0.1:8000/api/jobs');
         const data = await response.json();
         console.log(data);
 
@@ -37,6 +37,7 @@ function SavedJobs() {
 
     setSortedJobs(sorted);
   }, [savedJobs, sortOrder]);
+
   useEffect(() => {
     setTotalPages(Math.ceil(sortedJobs.length / jobsPerPage));
   }, [sortedJobs, jobsPerPage]);
@@ -55,56 +56,56 @@ function SavedJobs() {
     currentPage * jobsPerPage
   );
 
-  return (
-    <Flex direction="column" align="center" p={4}>
-      <Stack fontFamily="Verdana" mb={5} mt={-20} align="center">
-        <h2>
-          <Text fontSize="3xl" color="#008080" >Job Documentation & Assistance</Text>
-          <Text fontSize="3xl" color="#008080" align="center">Powered by AI</Text>
-        </h2>
-      </Stack>
+return (
+  <Flex justifyContent="center" direction="column" align="center" p={4}>
+    {/* Controls for sorting and jobs per page */}
+    <Flex mb={4} justify="space-between" width="100%" maxW="600px">
+      <Select 
+        value={jobsPerPage} 
+        onChange={handleJobsPerPageChange} 
+        ml={12}
+        textAlign="center" 
+        width="175px"
+        mb={5}
+      >
+        <option value={5}>5 Jobs Per Page</option>
+        <option value={10}>10 Jobs Per Page</option>
+        <option value={25}>25 Jobs Per Page</option>
+      </Select>
 
-      <Text fontSize="5xl" color="red" mb={20}>
-        Saved Jobs
-      </Text>
-
-      {/* Controls for sorting and jobs per page */}
-      <Flex mb={4} justify="space-between" width="100%" maxW="600px">
-        <Select 
-          value={jobsPerPage} 
-          onChange={handleJobsPerPageChange} 
-          ml={12}
-          textAlign="center" 
-          width="175px"
-          mb={5}
-        >
-          <option value={5}>5 Jobs Per Page</option>
-          <option value={10}>10 Jobs Per Page</option>
-          <option value={25}>25 Jobs Per Page</option>
-        </Select>
-
-        <Select 
-          value={sortOrder} 
-          onChange={(e) => setSortOrder(e.target.value)} 
-          textAlign="center" 
-          width="300px"
-        >
-          <option value="oldest_first">Sort by Oldest Saved Jobs</option>
-          <option value="most_recent">Sort by Most Recently Saved Jobs</option>
-        </Select>
-      </Flex>
-
-      {/* Pagination Component */}
-      <Pagination 
-        currentPage={currentPage} 
-        totalPages={totalPages} 
-        onPageChange={handlePageChange} 
-      />
-
-      {/* JobCard for displaying current jobs */}
-      <JobCard savedJobs={currentJobs} setSavedJobs={setSavedJobs} />
+      <Select 
+        value={sortOrder} 
+        onChange={(e) => setSortOrder(e.target.value)} 
+        textAlign="center" 
+        width="300px"
+      >
+        <option value="oldest_first">Sort by Oldest Saved Jobs</option>
+        <option value="most_recent">Sort by Most Recently Saved Jobs</option>
+      </Select>
     </Flex>
-  );
+
+    {/* Pagination Component */}
+    <Pagination 
+      currentPage={currentPage} 
+      totalPages={totalPages} 
+      onPageChange={handlePageChange} 
+    />
+
+    {/* Grid Layout for JobCards */}
+    <Flex justifyContent="center" width="100%" mt={4}>
+      <Grid
+        templateColumns="repeat(2, 1fr)"
+        gap={6}
+        width="100%"
+        maxW="1200px"
+      >
+        {currentJobs.map((job, index) => (
+          <JobCard key={index} savedJobs={[job]} setSavedJobs={setSavedJobs} />
+        ))}
+      </Grid>
+    </Flex>
+  </Flex>
+);
 }
 
 export default SavedJobs;
