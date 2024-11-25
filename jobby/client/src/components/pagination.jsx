@@ -2,7 +2,6 @@ import React from 'react';
 import { Button, HStack, Text } from "@chakra-ui/react";
 
 const Pagination = ({ currentPage, totalPages, onPageChange }) => {
-  // Creating an array of page numbers from 1 to totalPages
   const pageNumbers = Array.from({ length: totalPages }, (_, i) => i + 1);
 
   return (
@@ -11,31 +10,21 @@ const Pagination = ({ currentPage, totalPages, onPageChange }) => {
         <Text>No jobs available</Text>
       ) : (
         <>
-          <Button 
-            size="sm" 
-            onClick={() => onPageChange(1)} 
-            disabled={currentPage === 1}
-          >
+          <Button size="sm" onClick={() => onPageChange(1)} disabled={currentPage === 1}>
             {'<<'}
           </Button>
-          
           {pageNumbers.map((page) => (
             <Button
               key={page}
               size="sm"
               colorScheme={page === currentPage ? 'teal' : 'gray'}
               onClick={() => onPageChange(page)}
-              disabled={page === currentPage} 
+              disabled={page === currentPage}
             >
               {page}
             </Button>
           ))}
-
-          <Button 
-            size="sm" 
-            onClick={() => onPageChange(totalPages)} 
-            disabled={currentPage === totalPages}
-          >
+          <Button size="sm" onClick={() => onPageChange(totalPages)} disabled={currentPage === totalPages}>
             {'>>'}
           </Button>
         </>

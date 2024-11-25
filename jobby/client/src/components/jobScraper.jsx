@@ -92,12 +92,13 @@ useEffect(() => {
       if (!response.ok) throw new Error(`Failed to fetch data: ${response.status}`);
 
       const data = await response.json();
+      console.log("Fetched Job Data:", data);
       console.log("State abbreviation:", data.state);
 
     setJobTitle(data.job_title || '');
     setCompany(data.company || '');
     setJobDescription(data.job_description || '');
-    setSelectedState(data.state || '');
+    setSelectedState(data.state?.toUpperCase() === "REMOTE" || !data.state ? "REM" : data.state);
     setCity(data.city || '');
     setSalaryStart(data.salary_start || null);
     setSalaryEnd(data.salary_end || null);
@@ -120,17 +121,22 @@ useEffect(() => {
   
   // Code for saving to DB
 const handleConfirmation = async () => {
-  if (!selectedState) {
-    console.error("State is missing or invalid:", selectedState);
-    toast({
-      title: "Failed to save job, job could already be saved. If not, please try again!",
-      description: "State is missing or invalid.",
-      status: "error",
-      duration: 5000,
-      isClosable: true,
-    });
-    return;
-  }
+const normalizedState =
+  selectedState.toLowerCase() === "remote" || selectedState.toUpperCase() === "REM"
+    ? "REM"
+    : selectedState;
+
+      if (!selectedState) {
+        console.error("State is missing or invalid:", selectedState);
+        toast({
+          title: "Failed to save job, job could already be saved. If not, please try again!",
+          description: "State is missing or invalid.",
+          status: "error",
+          duration: 5000,
+          isClosable: true,
+        });
+        return;
+      }
 
   const newJob = {
     job_title: jobTitle,
@@ -142,7 +148,7 @@ const handleConfirmation = async () => {
     salary_end: salaryEnd || null,
     url: url,
     city: city,
-    state: selectedState,
+    state: normalizedState,
   };
 
     console.log("Saving Job Data:", newJob);
@@ -157,6 +163,7 @@ const handleConfirmation = async () => {
     });
     if (!response.ok) throw new Error(`Error saving job: ${response.statusText}`);
     const savedJob = await response.json();
+    console.log("Saved Job:", savedJob);
     setSavedJobs((prevJobs) => [...prevJobs, savedJob]);
 
     setIsJobSaved(true);
@@ -200,6 +207,7 @@ const handleConfirmation = async () => {
     <Box>
       <Input
         placeholder="Enter job listing URL"
+        textAlign="center"
         value={url}
         onChange={handleUrlChange}
       />
@@ -339,41 +347,6 @@ const handleConfirmation = async () => {
           </ModalFooter>
         </ModalContent>
       </Modal>
-
-{/* <Accordion allowToggle mt={8}>
-  {savedJobs.map((job) => {
-    const paymentType = paymentTypes.find((type) => type.id === job.payment_type);
-    return (
-      <AccordionItem key={job.id}>
-        <AccordionButton>
-          <Box flex="1" textAlign="left">
-            {job.company}: {job.job_title}
-          </Box>
-          <AccordionIcon />
-        </AccordionButton>
-        <AccordionPanel pb={4}>
-          <Text><strong>Job Title:</strong> {job.job_title}</Text>
-          <Text><strong>Company:</strong> {job.company}</Text>
-          <Text><strong>Description:</strong> {job.job_description}</Text>
-          <Text><strong>Requirements:</strong> {job.job_requirements}</Text>
-          <Text><strong>City:</strong> {job.city}</Text>
-          <Text><strong>State:</strong> {job.state.name} ({job.state.abbrev})</Text>
-          <Text><strong>URL: </strong> 
-            <Link
-              href={job.url}
-              isExternal
-              _hover={{ textDecoration: 'underline', color: 'teal.500' }}
-              cursor="pointer"
-            >
-              {job.url}
-            </Link>
-          </Text>
-        </AccordionPanel>
-      </AccordionItem>
-    );
-  })}
-</Accordion> */}
-
     </Box>
   );
 };

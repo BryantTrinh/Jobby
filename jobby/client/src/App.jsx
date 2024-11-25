@@ -14,7 +14,7 @@ import {
 } from "@chakra-ui/react";
 import logo from './assets/Logo.svg';
 import JobScraper from './components/jobScraper';
-import JobAccordion from './components/jobAccordion';
+import JobCard from './components/jobCard';
 import Pagination from './components/pagination';
 import './App.css';
 
@@ -104,16 +104,17 @@ function App() {
         direction="column"
       >
         {/* Website Logo */}
-        <Stack align="center" mb={4}>
+        {/* <Stack align="center" mb={4}>
           <Link to="/">
           <Image
             src={logo}
             alt="Website logo"
-            boxSize="350px"
+            width="400px"
+            height="300px"
             cursor="pointer"
           />
         </Link>
-      </Stack>
+      </Stack> */}
 
         {/* Page URL Routes */}
         <Routes>
@@ -125,7 +126,7 @@ function App() {
                 align="center"
               >
                 <h2>
-                  <Text fontSize='3xl' color='#008080'>Job Documentation & Assistance</Text>
+                  <Text fontSize='3xl' color='#008080' mt={-20}>Job Documentation & Assistance</Text>
                   <Text fontSize='3xl' color='#008080' align="center">Powered by AI</Text>
                 </h2>
               </Stack>

@@ -24,7 +24,7 @@ const Search = ({ savedJobs }) => {
         maxWidth="800px" 
         mb={30}
       >
-        <Text fontSize="3xl" color="#008080" mb={4}>
+        <Text fontSize="5xl" color="red" mt={-20} mb={4}>
           Job Search
         </Text>
         
