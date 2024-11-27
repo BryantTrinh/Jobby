@@ -26,6 +26,7 @@ import {
 } from "@chakra-ui/react";
 import { ChakraProvider } from '@chakra-ui/react';
 import { useToast } from '@chakra-ui/react';
+import { useNavigate } from 'react-router-dom';
 
 const JobScraper = () => {
   const [jobData, setJobData] = useState(null);
@@ -46,6 +47,7 @@ const JobScraper = () => {
   const [selectedState, setSelectedState] = useState('');
   const [url, setUrl] = useState('');
   const toast = useToast();
+  const navigate = useNavigate();
 
 const fetchStates = async () => {
   try {
@@ -329,19 +331,16 @@ const normalizedState =
             <Button colorScheme="blue" mr={3} onClick={handleConfirmation}>
               Save Job
             </Button>
-              {isJobSaved && savedJobs.length > 0 && (
-                <Button
-                  colorScheme="teal"
-                  mr={3}
-                  onClick={() => {
-                    const jobId = savedJobs[savedJobs.length - 1].id;
-                    const jobDetailsUrl = `http://127.0.0.1:8000/api/jobs/${jobId}`;
-                    window.location.href = jobDetailsUrl;
-                    console.log('Redirecting to job details:', jobDetailsUrl);
-                  }}
-                >
-                  View In Depth Job Details
-                </Button>
+            {isJobSaved && savedJobs.length > 0 && (
+              <Button
+                colorScheme="teal"
+                onClick={() => {
+                  const jobId = savedJobs[savedJobs.length - 1].id;
+                  navigate(`/jobby/job/${jobId}`);
+                }}
+              >
+                View In Depth Job Details
+              </Button>
               )}
             <Button onClick={onClose}>Cancel</Button>
           </ModalFooter>
