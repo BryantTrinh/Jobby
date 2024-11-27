@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import SavedJobs from './pages/SavedJobs';
 import JobDetails from './pages/JobDetails';
 import Search from './pages/Search';
+import Faq from './pages/Faq';
 import {
   Flex,
   Stack,
@@ -92,6 +93,16 @@ function App() {
             Search Through Jobs
           </Button>
         </Link>
+
+        <Link to="/jobby/faq">
+          <Button
+            variant="ghost"
+            color='white'
+            _hover={{ backgroundColor: 'teal.600' }}
+            >
+              FAQ
+          </Button>
+        </Link>
       </Flex>
 
       {/* Main Layout */}
@@ -153,6 +164,7 @@ function App() {
           <Route path="/jobby/savedJobs" element={<SavedJobs />} />
           <Route path="/jobby/job/:jobid" element={<JobDetails />} />
           <Route path="/jobby/search" element={<Search savedJobs={savedJobs} />} />
+          <Route path="/jobby/faq" element={<Faq />} />
         </Routes>
       </Flex>
     </Router>
