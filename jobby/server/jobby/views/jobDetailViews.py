@@ -18,12 +18,16 @@ def job_detail(request, pk):
         return Response(serializer.data)
     
     elif request.method == 'PUT':
-        serializer = JobSerializer(job, data=request.data)
+        # get state
+        
+        serializer = JobSerializer(job, request.data)
         # check if serializer is valid after serializing the data
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data)
         # if errors, return errors and send 400 status code
+        else:
+          print(serializer.errors)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
     elif request.method == 'DELETE':
