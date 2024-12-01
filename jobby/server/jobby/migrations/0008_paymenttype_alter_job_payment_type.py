@@ -18,12 +18,12 @@ class Migration(migrations.Migration):
                 ('name', models.CharField(max_length=255, unique=True)),
             ],
             options={
-                'db_table': 'payment_type',
+                'db_table': 'jobby_payment_type',
             },
         ),
         migrations.AlterField(
             model_name='job',
-            name='payment_type',
+            name='jobby_payment_type',
             field=models.ForeignKey(blank=True, default=None, null=True, on_delete=django.db.models.deletion.CASCADE, to='jobby.paymenttype'),
         ),
     ]
