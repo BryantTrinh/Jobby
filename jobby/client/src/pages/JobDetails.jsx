@@ -22,7 +22,6 @@ function JobDetails() {
           setJob(data);
           setEditedJob({
             ...data,
-            // state: data.state?.name || '',
             state: data.state,
             job_requirements: data.job_requirements || '',
             salary_start: data.salary_start || '',
@@ -46,7 +45,11 @@ function JobDetails() {
         if (!response.ok) throw new Error('Error fetching states');
         const data = await response.json();
         const remoteState = { name: "Remote", abbrev: "REM" };
-        setStates([remoteState, ...data]);
+        const existingStates = data.some(state => state.abbrev === remoteState.abbrev);
+        if (!existingStates) {
+          data.unshift(remoteState);
+        }
+        setStates(data);
       } catch (error) {
         console.error("Error fetching states:", error);
         toast({
@@ -62,29 +65,29 @@ function JobDetails() {
     fetchStates();
   }, [jobid]);
 
-const handleInputChange = (e) => {
-  const { name, value, type } = e.target;
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    if (name === "state") {
+      const selectedState = states.find((state) => state.abbrev === value);
+      setEditedJob({
+        ...editedJob,
+        state: selectedState || editedJob.state,
+      });
+    } else {
+      setEditedJob({ ...editedJob, [name]: value });
+    }
+  };
 
-  if (type === "select-one" && name === "state") {
-    const selectedState = states.find(state => state.name === value);
-    console.log("State selected:", selectedState);
-    setEditedJob({
-      ...editedJob,
-      state: selectedState ? selectedState : '',
-      
-    });
-  } else {
-    setEditedJob({ ...editedJob, [name]: value });
-  }
-};
+  const toggleEditing = () => {
+    setIsEditing((prev) => !prev);
+  };
 
-const handleEditToggle = async () => {
-  if (isEditing) {
+  const saveJob = async () => {
     const jobData = {
       job_title: editedJob.job_title,
       company: editedJob.company,
       job_description: editedJob.job_description,
-      state: editedJob.state,
+      state: editedJob.state?.abbrev || editedJob.state,
       city: editedJob.city,
       salary_start: editedJob.salary_start || null,
       salary_end: editedJob.salary_end || null,
@@ -92,14 +95,11 @@ const handleEditToggle = async () => {
       job_requirements: editedJob.job_requirements,
       url: job.url,
     };
-  
+
     console.log("JSON data sent", jobData);
-    console.log("Data being sent to the backend:", JSON.stringify(jobData, null, 2));
 
     try {
-      const jobUrl = `http://127.0.0.1:8000/api/jobs/${jobid}/`;
-
-      const response = await fetch(jobUrl, {
+      const response = await fetch(`http://127.0.0.1:8000/api/jobs/${jobid}/`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -118,13 +118,8 @@ const handleEditToggle = async () => {
           isClosable: true,
         });
       } else {
-        toast({
-          title: 'Save failed.',
-          description: 'An error occurred while saving the job details.',
-          status: 'error',
-          duration: 5000,
-          isClosable: true,
-        });
+        const responseText = await response.text();
+        throw new Error(`Error saving job: ${responseText}`);
       }
     } catch (err) {
       toast({
@@ -135,9 +130,9 @@ const handleEditToggle = async () => {
         isClosable: true,
       });
     }
-  }
-  setIsEditing(!isEditing);
-};
+
+    setIsEditing(false);
+  };
 
   const handlePaymentTypeChange = (e) => {
     setPaymentType(e.target.value);
@@ -194,12 +189,12 @@ const handleEditToggle = async () => {
           {isEditing ? (
             <Select
               name="state"
-              value={editedJob.state || ''}
+              value={editedJob.state?.abbrev || ''}
               onChange={handleInputChange}
               mb={2}
             >
-              {states.map((state, index) => (
-                <option key={state.name + index} value={state.name}>
+              {states.map((state) => (
+                <option key={state.abbrev} value={state.abbrev}>
                   {state.name}
                 </option>
               ))}
@@ -279,7 +274,7 @@ const handleEditToggle = async () => {
 
       <Button
         colorScheme={isEditing ? "green" : "blue"}
-        onClick={handleEditToggle}
+        onClick={isEditing ? saveJob : toggleEditing}
       >
         {isEditing ? "Save" : "Edit"}
       </Button>
