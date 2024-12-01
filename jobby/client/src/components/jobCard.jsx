@@ -5,8 +5,11 @@ import {
   Badge,
   Flex,
   Text,
+  Input,
+  Select,
+  Button,
 } from '@chakra-ui/react';
-import { DeleteIcon } from '@chakra-ui/icons';
+import { DeleteIcon, EditIcon } from '@chakra-ui/icons';
 import { useNavigate } from 'react-router-dom';
 
 function JobCard({ savedJobs, setSavedJobs }) {

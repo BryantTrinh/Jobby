@@ -38,11 +38,11 @@ def job_detail(request, pk):
         salary_end = None
         if request.data.get('salary_start') != None:
             salary_start = request.data.get('salary_start')
-            if isinstance(salary_start, float) == False:
+            if isinstance(salary_start, float) == False and isinstance(salary_start, str) == True:
                 salary_start = request.data.get('salary_start').replace(',', '').replace('$', '')
         if request.data.get('salary_end') != None:
             salary_end = request.data.get('salary_end')
-            if isinstance(salary_end, float) == False:
+            if isinstance(salary_end, float) == False and isinstance(salary_end, str) == True: 
                 salary_end = request.data.get('salary_end').replace(',', '').replace('$', '')
             
         try:
@@ -55,7 +55,7 @@ def job_detail(request, pk):
 
         job.title = request.data.get('job_title') or job.title
         job.company = request.data.get('company') or job.company
-        job.descritpion = request.data.get('job_description') or job.description
+        job.description = request.data.get('job_description') or job.description
         job.requirements = request.data.get('job_requirements') or job.requirements
         job.salary_start = salary_start or job.salary_start
         job.salary_end = salary_end or job.salary_end
