@@ -6,7 +6,6 @@ from jobby.serializer import JobSerializer
 from django.db.models import Q
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from ..constants import REQUEST_PARAMS
-from django.shortcuts import render
 import json
 import datetime
 
@@ -90,10 +89,14 @@ def job_view(request):
 
         salary_start = None
         salary_end = None
-        if body.get('salary_start') is not None:
-            salary_start = body.get('salary_start').replace(',', '').replace('$', '')
-        if body.get('salary_end') is not None:
-            salary_end = body.get('salary_end').replace(',', '').replace('$', '')
+        if request.data.get('salary_start') != None:
+            salary_start = request.data.get('salary_start')
+            if isinstance(salary_start, float) == False:
+                salary_start = request.data.get('salary_start').replace(',', '').replace('$', '')
+        if request.data.get('salary_end') != None:
+            salary_end = request.data.get('salary_end')
+            if isinstance(salary_end, float) == False:
+                salary_end = request.data.get('salary_end').replace(',', '').replace('$', '')
             
         try:
             if salary_start is not None:
