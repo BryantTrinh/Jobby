@@ -39,18 +39,18 @@ function JobCard({ savedJobs, setSavedJobs }) {
   };
 
   return (
-    <Box width="800px" maxWidth="800px" mb="20px" mt="10">
-      {savedJobs && savedJobs.length > 0 ? (
-        savedJobs.map((job, index) => (
-          <Box
-            key={index}
-            border="1px solid #E2E8F0"
-            borderRadius="md"
-            p={4}
-            mb={4}
-            backgroundColor="white"
-            boxShadow="sm"
-          >
+  <Box width="800px" maxWidth="800px" mb="20px" mt="10">
+    {savedJobs && savedJobs.length > 0 ? (
+      savedJobs.map((job, index) => (
+        <Box
+          key={index}
+          border="1px solid #E2E8F0"
+          borderRadius="md"
+          p={4}
+          mb={4}
+          backgroundColor="white"
+          boxShadow="sm"
+      >
   <Flex justifyContent="space-between" alignItems="center" mb={3}>
     <Text
       fontSize="xl"

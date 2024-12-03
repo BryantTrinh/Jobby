@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { Box, Text, Flex, Spinner, Button, Input, Textarea, Select, useToast } from '@chakra-ui/react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 
 function JobDetails() {
   const { jobid } = useParams();
+  const navigate = useNavigate();
   const [job, setJob] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -140,6 +141,10 @@ function JobDetails() {
     setPaymentType(selectedType);
   };
 
+  const handleClose = () => {
+    navigate('/jobby/savedJobs');
+  }
+
   if (loading) {
     return (
       <Flex justifyContent="center" alignItems="center" height="100vh">
@@ -240,19 +245,27 @@ function JobDetails() {
             />
           </Flex>
 
-          <Text fontSize="lg" fontWeight="bold" mb={2}>Payment Type:</Text>
-          <Select
-            name="payment_type"
-            value={editedJob.payment_Type}
-            onChange={handlePaymentTypeChange}
-            isReadOnly={!isEditing}
-            mb={5}
-          >
-            <option value="hourly">Hourly</option>
-            <option value="yearly">Yearly</option>
-          </Select>
-        </Flex>
-      </Flex>
+  <Text fontSize="lg" fontWeight="bold" mb={2}>Payment Type:</Text>
+    {isEditing ? (
+      <Select
+        name="payment_type"
+        value={editedJob.payment_type}
+        onChange={handlePaymentTypeChange}
+        mb={5}
+      >
+        <option value="hourly">Hourly</option>
+        <option value="yearly">Yearly</option>
+      </Select>
+    ) : (
+      <Input
+        name="payment_type"
+        value={editedJob.payment_type === 'hourly' ? 'Hourly' : 'Yearly'}
+        isReadOnly
+        mb={5}
+      />
+    )}
+  </Flex>
+</Flex>
 
       <Text fontSize="lg" fontWeight="bold" mb={2}>Job Description:</Text>
       <Textarea
@@ -273,13 +286,17 @@ function JobDetails() {
         mb={5}
         height="200px"
       />
-
+  <Flex justifyContent="space-between" mt={4}>
       <Button
         colorScheme={isEditing ? "green" : "blue"}
         onClick={isEditing ? saveJob : toggleEditing}
       >
         {isEditing ? "Save" : "Edit"}
       </Button>
+      <Button colorScheme="blue" onClick={handleClose} ml="auto">
+        Close
+      </Button>
+    </Flex>
     </Box>
   );
 }
