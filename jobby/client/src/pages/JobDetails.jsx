@@ -91,7 +91,7 @@ function JobDetails() {
       city: editedJob.city,
       salary_start: editedJob.salary_start || null,
       salary_end: editedJob.salary_end || null,
-      payment_type: paymentType,
+      payment_type: editedJob.payment_type,
       job_requirements: editedJob.job_requirements,
       url: job.url,
     };
@@ -135,7 +135,9 @@ function JobDetails() {
   };
 
   const handlePaymentTypeChange = (e) => {
-    setPaymentType(e.target.value);
+    const selectedType = e.target.value;
+    setEditedJob({ ...editedJob, payment_type: selectedType });
+    setPaymentType(selectedType);
   };
 
   if (loading) {
@@ -212,7 +214,7 @@ function JobDetails() {
           <Input
             name="applied"
             value={editedJob.applied || ''}
-            isReadOnly={!isEditing}
+            isReadOnly
             onChange={handleInputChange}
             mb={5}
           />
@@ -241,7 +243,7 @@ function JobDetails() {
           <Text fontSize="lg" fontWeight="bold" mb={2}>Payment Type:</Text>
           <Select
             name="payment_type"
-            value={paymentType}
+            value={editedJob.payment_Type}
             onChange={handlePaymentTypeChange}
             isReadOnly={!isEditing}
             mb={5}
