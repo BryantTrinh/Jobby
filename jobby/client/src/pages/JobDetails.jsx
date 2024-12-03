@@ -245,19 +245,27 @@ function JobDetails() {
             />
           </Flex>
 
-          <Text fontSize="lg" fontWeight="bold" mb={2}>Payment Type:</Text>
-          <Select
-            name="payment_type"
-            value={editedJob.payment_Type}
-            onChange={handlePaymentTypeChange}
-            isReadOnly={!isEditing}
-            mb={5}
-          >
-            <option value="hourly">Hourly</option>
-            <option value="yearly">Yearly</option>
-          </Select>
-        </Flex>
-      </Flex>
+  <Text fontSize="lg" fontWeight="bold" mb={2}>Payment Type:</Text>
+    {isEditing ? (
+      <Select
+        name="payment_type"
+        value={editedJob.payment_type}
+        onChange={handlePaymentTypeChange}
+        mb={5}
+      >
+        <option value="hourly">Hourly</option>
+        <option value="yearly">Yearly</option>
+      </Select>
+    ) : (
+      <Input
+        name="payment_type"
+        value={editedJob.payment_type === 'hourly' ? 'Hourly' : 'Yearly'}
+        isReadOnly
+        mb={5}
+      />
+    )}
+  </Flex>
+</Flex>
 
       <Text fontSize="lg" fontWeight="bold" mb={2}>Job Description:</Text>
       <Textarea
