@@ -39,7 +39,7 @@ function JobCard({ savedJobs, setSavedJobs }) {
   };
 
   return (
-  <Box width="800px" maxWidth="800px" mb="20px" mt="10">
+  <Box width="700px" maxWidth="700px" mb="10px" mt="10">
     {savedJobs && savedJobs.length > 0 ? (
       savedJobs.map((job, index) => (
         <Box
