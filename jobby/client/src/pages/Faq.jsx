@@ -8,6 +8,10 @@ function FAQ() {
       answer: ['This application helps you manage and track job applications efficiently.'],
     },
     {
+      question: 'What websites can I save?',
+      answer: ['At the moment, Jobby only supports Indeed.']
+    },
+    {
       question: 'How can I save a job application?',
       answer: [
         'Start by searching for a job on Indeed.',

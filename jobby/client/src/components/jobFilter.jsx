@@ -45,7 +45,7 @@ const JobFilter = () => {
 
   return (
     <Flex direction="column" align="center" width="100%" maxWidth="800px" mt={10}>
-      <Text fontSize='3xl' align="center" color='#008080'>Application Filter</Text>
+      <Text fontSize='3xl' align="center" color='#008080' mb={5}>Application Filter</Text>
       <Select
         placeholder="Select filter option"
         value={filterOption}
@@ -72,7 +72,7 @@ const JobFilter = () => {
         />
       )}
 
-      <Button colorScheme='teal' size='md' onClick={handleFilter}>
+      <Button colorScheme='teal' size='md' mt={5} onClick={handleFilter}>
         Search
       </Button>
 
