@@ -24,8 +24,8 @@ const Search = ({ savedJobs }) => {
         maxWidth="800px" 
         mb={30}
       >
-        <Text fontSize="5xl" color="red" mt={-20} mb={4}>
-          Job Search
+        <Text fontSize="5xl" color="teal" mt={-20} mb={4}>
+          Search Through Saved Jobs
         </Text>
         
         {/* Job Filter Component*/}
